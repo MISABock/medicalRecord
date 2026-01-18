@@ -1,0 +1,124 @@
+.registerPage {
+  min-height: calc(100vh - 60px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: radial-gradient(circle at top, #f4f7ff, #ffffff);
+}
+
+.registerCard {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border: 1px solid #e9edf5;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
+  padding: 22px;
+}
+
+.registerHeader {
+  margin-bottom: 16px;
+}
+
+.registerTitle {
+  font-size: 22px;
+  line-height: 1.2;
+  color: #0f172a;
+}
+
+.registerSubtitle {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #475569;
+}
+
+.registerForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.registerLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.registerInput {
+  height: 42px;
+  padding: 10px 12px;
+  border: 1px solid #d9e1ee;
+  border-radius: 10px;
+  outline: none;
+  font-size: 14px;
+  background: #ffffff;
+}
+
+.registerInput:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12);
+}
+
+.registerButton {
+  height: 44px;
+  margin-top: 4px;
+  border-radius: 10px;
+  border: none;
+  background: #7c3aed;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.registerButton:hover {
+  filter: brightness(0.97);
+}
+
+.registerButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.registerMessage {
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.35;
+  border: 1px solid transparent;
+}
+
+.registerMessage.ok {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #065f46;
+}
+
+.registerMessage.error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.registerFooter {
+  margin-top: 14px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  font-size: 13px;
+  color: #475569;
+}
+
+.registerLink {
+  color: #7c3aed;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.registerLink:hover {
+  text-decoration: underline;
+}

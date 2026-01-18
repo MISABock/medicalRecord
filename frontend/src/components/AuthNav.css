@@ -1,0 +1,21 @@
+.authNav {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.authNav a {
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  text-decoration: none;
+}
+
+.authNav a.active {
+  color: #7c3aed;
+}
+
+.authNav a:hover {
+  color: #7c3aed;
+}

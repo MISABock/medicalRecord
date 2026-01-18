@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: medicalrecord
+      POSTGRES_USER: medical
+      POSTGRES_PASSWORD: medical
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@local.ch
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+  api:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg2://medical:medical@db:5432/medicalrecord
+      JWT_SECRET: change_me_in_env
+      JWT_ISSUER: medicalrecord
+      JWT_AUDIENCE: medicalrecord-web
+      JWT_EXPIRES_MIN: "60"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./backend:/app
+      - ./backend/uploads:/app/uploads
+
+volumes:
+  pgdata:
