@@ -1,30 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
+import HomeNav from "../components/HomeNav";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
 
   const go = (path) => navigate(path);
 
   return (
     <div className="dashPage">
-      <header className="dashTopbar">
-        <button className="dashLogout" onClick={logout}>
-          Logout
-        </button>
-
-        <div className="dashBrand">
-          <div className="dashTitle">MedicalRecord</div>
-          <div className="dashSubtitle">Deine Dokumente. Deine Übersicht.</div>
-        </div>
-
-        <div className="dashTopbarRight" />
-      </header>
+      <HomeNav />
 
       <main className="dashMain">
         <section className="dashHero">

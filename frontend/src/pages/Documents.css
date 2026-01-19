@@ -92,12 +92,12 @@
 
 .docsGroupHeader {
   padding: 14px 14px 10px 14px;
-  border-bottom: 1px solid #eef2f8;
+  border-bottom: 1px solid #000000;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
-  background: radial-gradient(circle at top, #f4f7ff, #ffffff);
+  background: radial-gradient(circle at 10% 10%, #d2dcf9, #ffffff);
 }
 
 .docsGroupName {
@@ -185,6 +185,7 @@
   display: flex;
   justify-content: center;
 }
+
 
 .timeDot {
   width: 10px;
@@ -318,6 +319,12 @@
   color: #0f172a;
 }
 
+.docsModalActionsRight {
+  display: flex;
+  gap: 12px; /* oder 16px, je nach Geschmack */
+}
+
+
 .docsInput,
 .docsSelect {
   height: 42px;
@@ -327,6 +334,15 @@
   outline: none;
   background: #ffffff;
 }
+
+.docsInput[type="file"] {
+  display: flex;
+  align-items: center;
+  height: 44px; /* gleiche Höhe wie andere Inputs */
+  padding: 9px 10px;
+  box-sizing: border-box;
+}
+
 
 .docsInput:focus,
 .docsSelect:focus {
@@ -365,4 +381,52 @@
   display: flex;
   align-items: center;
   min-height: 56px;
+}
+.timeDateLeft {
+  position: absolute;
+  top: 8px;
+  left: -6px;
+  transform: translateX(-100%);
+  font-size: 11px;
+  font-weight: 800;
+  color: #7c3aed;
+  white-space: nowrap;
+}
+.docsRowClickable {
+  cursor: pointer;
+}
+
+.docsRowClickable:hover {
+  background: #f8fafc;
+}
+
+.docsRowClickable:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.35);
+}
+.docsRowClickable {
+  cursor: pointer;
+}
+
+.docsRowClickable:hover {
+  background: #f8fafc;
+}
+
+.docsRowClickable:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.35);
+}
+
+.timeCardClickable {
+  cursor: pointer;
+}
+
+.timeCardClickable:hover {
+  border-color: #d9e1ee;
+  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
+}
+
+.timeCardClickable:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.35);
 }

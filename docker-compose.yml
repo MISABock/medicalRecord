@@ -22,6 +22,19 @@ services:
     depends_on:
       - db
 
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
   api:
     build: ./backend
     environment:
@@ -30,13 +43,17 @@ services:
       JWT_ISSUER: medicalrecord
       JWT_AUDIENCE: medicalrecord-web
       JWT_EXPIRES_MIN: "60"
+    env_file:
+      - .env  
     ports:
       - "8000:8000"
     depends_on:
       - db
+      - minio
     volumes:
       - ./backend:/app
-      - ./backend/uploads:/app/uploads
 
 volumes:
   pgdata:
+  minio_data:
+

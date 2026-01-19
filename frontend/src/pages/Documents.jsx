@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import "./Documents.css";
 import { apiGet, apiPost, apiPostForm } from "../api/client";
+import HomeNav from "../components/HomeNav";
+
+
+import DocumentsGroupedView from "../components/documents/DocumentsGroupedView";
+
 
 
 const DOC_TYPES = [
@@ -22,6 +27,8 @@ function formatDate(iso) {
   }
 }
 
+
+
 export default function Documents() {
   const [view, setView] = useState("provider");
   const [docs, setDocs] = useState([]);
@@ -30,7 +37,6 @@ export default function Documents() {
 
   const [title, setTitle] = useState("");
   const [serviceDate, setServiceDate] = useState("");
-  const [provider, setProvider] = useState("");
   const [docType, setDocType] = useState(DOC_TYPES[0]);
 
   const [selectedDoc, setSelectedDoc] = useState(null);
@@ -38,15 +44,50 @@ export default function Documents() {
 
   const [file, setFile] = useState(null);
 
+  const [providerChoice, setProviderChoice] = useState("");
+  const [providerCustom, setProviderCustom] = useState("");
+
+
+
+  const [editTitle, setEditTitle] = useState("");
+  const [editServiceDate, setEditServiceDate] = useState("");
+  const [editProviderChoice, setEditProviderChoice] = useState("");
+  const [editProviderCustom, setEditProviderCustom] = useState("");
+  const [editDocType, setEditDocType] = useState(DOC_TYPES[0]);
+
+  const [editMedication, setEditMedication] = useState("");
+  const [medication, setMedication] = useState("");
+
+
+
 
   const openDoc = (doc) => {
     setSelectedDoc(doc);
+
+    setEditTitle(doc.title || "");
+    setEditServiceDate((doc.serviceDate || "").slice(0, 10));
+    setEditMedication(doc.medication || "");
+
+
+    if (providers.includes(doc.provider)) {
+      setEditProviderChoice(doc.provider);
+      setEditProviderCustom("");
+    } else {
+      setEditProviderChoice("__custom__");
+      setEditProviderCustom(doc.provider || "");
+    }
+
+    setEditDocType(doc.docType || DOC_TYPES[0]);
+
     setIsOpenModalOpen(true);
   };
+
 
   const closeOpenModal = () => {
     setIsOpenModalOpen(false);
     setSelectedDoc(null);
+    setMedication("");
+
   };
 
 
@@ -83,6 +124,8 @@ export default function Documents() {
     const set = new Set(docs.map((d) => d.docType).filter(Boolean));
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [docs]);
+
+
 
 
   const groupedByProvider = useMemo(() => {
@@ -126,61 +169,123 @@ export default function Documents() {
   const openModal = () => {
     setTitle("");
     setServiceDate("");
-    setProvider("");
     setDocType(DOC_TYPES[0]);
     setFile(null);
+
+    setProviderCustom("");
+
+    if (providers.length > 0) {
+      setProviderChoice(providers[0]);
+    } else {
+      setProviderChoice("__custom__");
+    }
+
     setIsModalOpen(true);
   };
 
+  const saveSelectedDocEdits = async () => {
+  if (!selectedDoc?.id) return;
 
-  const closeModal = () => setIsModalOpen(false);
+  const providerValue =
+    editProviderChoice === "__custom__"
+      ? editProviderCustom.trim()
+      : (editProviderChoice || "").trim();
 
-const saveDoc = async (e) => {
-  e.preventDefault();
-
-  if (!title.trim() || !serviceDate || !provider.trim()) {
-    return;
-  }
-
-  if (!file) {
-    alert("Bitte eine Datei auswaehlen.");
+  if (!editTitle.trim() || !editServiceDate || !providerValue || !editDocType) {
+    alert("Bitte alle Pflichtfelder ausfuellen.");
     return;
   }
 
   try {
-    const form = new FormData();
-    form.append("upload", file);
-
-    const uploaded = await apiPostForm("/documents/files", form);
-
     const payload = {
-      title: title.trim(),
-      service_date: serviceDate,
-      provider: provider.trim(),
-      doc_type: docType,
-      file_id: uploaded.id,
+      title: editTitle.trim(),
+      service_date: editServiceDate,
+      provider: providerValue,
+      doc_type: editDocType,
     };
 
-    const created = await apiPost("/documents", payload);
+    const updated = await apiPost(`/documents/${selectedDoc.id}/update`, payload);
 
-    setDocs((prev) => [
-      {
-        id: created.id,
-        title: created.title,
-        serviceDate: created.service_date,
-        provider: created.provider,
-        docType: created.doc_type,
-        fileId: created.file_id,
-      },
-      ...prev,
-    ]);
 
-    setIsModalOpen(false);
+    const mapped = {
+      id: updated.id,
+      title: updated.title,
+      serviceDate: updated.service_date,
+      provider: updated.provider,
+      docType: updated.doc_type,
+      fileId: updated.file_id,
+      medication: editDocType === "Rezept" ? editMedication.trim() : null,
+    };
+
+    setDocs((prev) => prev.map((d) => (d.id === mapped.id ? mapped : d)));
+    setSelectedDoc(mapped);
+    alert("Gespeichert.");
   } catch (err) {
     console.error(err);
-    alert("Fehler beim Speichern des Dokuments.");
+    alert("Fehler beim Speichern der Aenderungen.");
   }
 };
+
+
+
+
+
+  const closeModal = () => setIsModalOpen(false);
+
+  
+  const saveDoc = async (e) => {
+    e.preventDefault();
+
+    const providerValue =
+      providerChoice === "__custom__"
+        ? providerCustom.trim()
+        : (providerChoice || "").trim();
+
+    if (!title.trim() || !serviceDate || !providerValue) {
+      return;
+    }
+
+    if (!file) {
+      alert("Bitte eine Datei auswaehlen.");
+      return;
+    }
+
+    try {
+      const form = new FormData();
+      form.append("upload", file);
+
+      const uploaded = await apiPostForm("/documents/files", form);
+
+      const payload = {
+        title: title.trim(),
+        service_date: serviceDate,
+        provider: providerValue,
+        medication: docType === "Rezept" ? medication.trim() : null,
+        doc_type: docType,
+        file_id: uploaded.id,
+      };
+
+      const created = await apiPost("/documents", payload);
+
+      setDocs((prev) => [
+        {
+          id: created.id,
+          title: created.title,
+          serviceDate: created.service_date,
+          provider: created.provider,
+          docType: created.doc_type,
+          fileId: created.file_id,
+        },
+        ...prev,
+      ]);
+
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error(err);
+      alert("Fehler beim Speichern des Dokuments.");
+    }
+  };
+
 
 const openSelectedFile = async () => {
   if (!selectedDoc?.id) return;
@@ -210,11 +315,34 @@ const openSelectedFile = async () => {
   }
 };
 
+const deleteSelectedDoc = async () => {
+  if (!selectedDoc?.id) return;
+
+  const ok = window.confirm(
+    "Willst du dieses Dokument wirklich löschen? Die Datei wird ebenfalls entfernt."
+  );
+
+  if (!ok) return;
+
+  try {
+    await apiPost(`/documents/${selectedDoc.id}/delete`);
+
+    setDocs((prev) => prev.filter((d) => d.id !== selectedDoc.id));
+
+    closeOpenModal();
+  } catch (err) {
+    console.error(err);
+    alert("Fehler beim Löschen des Dokuments.");
+  }
+};
+
 
 
 
   return (
+   
     <div className="docsPage">
+     <HomeNav />
       <header className="docsTop">
         <div>
           <h1 className="docsTitle">Dokumente</h1>
@@ -255,92 +383,54 @@ const openSelectedFile = async () => {
       </header>
 
       {view === "provider" ? (
-        <div className="docsProviderGrid">
-          {groupedByProvider.map(([prov, items]) => (
-            <section key={prov} className="docsGroup">
-              <div className="docsGroupHeader">
-                <div className="docsGroupName">{prov}</div>
-                <div className="docsGroupCount">{items.length} Dokumente</div>
-              </div>
-
-              <div className="docsList">
-                {items.map((d) => (
-                  <div key={d.id} className="docsRow">
-                    <div className="docsRowMain">
-                      <div className="docsRowTitle">{d.title}</div>
-                      <div className="docsRowMeta">
-                        <span>{formatDate(d.serviceDate)}</span>
-                        <span className="dot">•</span>
-                        <span>{d.docType}</span>
-                      </div>
-                    </div>
-                    <button className="docsOpen" type="button" onClick={() => openDoc(d)}>
-                      Öffnen
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
+        <DocumentsGroupedView
+          groups={groupedByProvider}
+          onOpenDoc={openDoc}
+          metaRightField="docType"
+        />
       ) : view === "doctype" ? (
-        <div className="docsProviderGrid">
-          {groupedByDocType.map(([type, items]) => (
-            <section key={type} className="docsGroup">
-              <div className="docsGroupHeader">
-                <div className="docsGroupName">{type}</div>
-                <div className="docsGroupCount">{items.length} Dokumente</div>
-              </div>
-
-              <div className="docsList">
-                {items.map((d) => (
-                  <div key={d.id} className="docsRow">
-                    <div className="docsRowMain">
-                      <div className="docsRowTitle">{d.title}</div>
-                      <div className="docsRowMeta">
-                        <span>{formatDate(d.serviceDate)}</span>
-                        <span className="dot">•</span>
-                        <span>{d.provider}</span>
-                      </div>
-                    </div>
-                    <button className="docsOpen" type="button" onClick={() => openDoc(d)}>
-                      Öffnen
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
+        <DocumentsGroupedView
+          groups={groupedByDocType}
+          onOpenDoc={openDoc}
+          metaRightField="provider"
+        />
       ) : (
         <div className="docsTimeline">
           {timeline.map((d) => (
             <div key={d.id} className="timeItem">
               <div className="timeLeft">
+                <div className="timeDateLeft">{formatDate(d.serviceDate)}</div>
                 <div className="timeDot" />
                 <div className="timeLine" />
               </div>
 
-              <div className="timeCard">
+              <div
+                className="timeCard timeCardClickable"
+                role="button"
+                tabIndex={0}
+                onClick={() => openDoc(d)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    openDoc(d);
+                  }
+                }}
+              >
                 <div className="timeCardTop">
                   <div className="timeTitle">{d.title}</div>
                   <div className="timeDate">{formatDate(d.serviceDate)}</div>
                 </div>
+
                 <div className="timeMeta">
                   <span>{d.provider}</span>
                   <span className="dot">•</span>
                   <span>{d.docType}</span>
-                </div>
-                <div className="timeActions">
-                  <button className="docsOpen" type="button" onClick={() => openDoc(d)}>
-                    Öffnen
-                  </button>
                 </div>
               </div>
             </div>
           ))}
         </div>
       )}
+
 
       {isModalOpen ? (
         <div className="docsModalBackdrop" onMouseDown={closeModal}>
@@ -379,29 +469,46 @@ const openSelectedFile = async () => {
                 />
               </label>
 
-              <label className="docsLabel">
-                Arzt / Einrichtung
-                <input
-                  className="docsInput"
-                  value={provider}
-                  onChange={(e) => setProvider(e.target.value)}
-                  placeholder="z.B. USZ Zürich"
-                  list="providers"
+              <div className="docsLabel">
+                <div>Arzt / Einrichtung</div>
+
+                <select
+                  className="docsSelect"
+                  value={providerChoice}
+                  onChange={(e) => setProviderChoice(e.target.value)}
                   required
-                />
-                <datalist id="providers">
+                >
                   {providers.map((p) => (
-                    <option key={p} value={p} />
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
                   ))}
-                </datalist>
-              </label>
+                  <option value="__custom__">Neu eingeben</option>
+                </select>
+
+                {providerChoice === "__custom__" ? (
+                  <input
+                    className="docsInput"
+                    value={providerCustom}
+                    onChange={(e) => setProviderCustom(e.target.value)}
+                    placeholder="z.B. USZ Zuerich"
+                    required
+                  />
+                ) : null}
+              </div>
+
 
               <label className="docsLabel">
                 Dokumenttyp
                 <select
                   className="docsSelect"
                   value={docType}
-                  onChange={(e) => setDocType(e.target.value)}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setDocType(v);
+                    if (v !== "Rezept") setMedication("");
+                  }}
+                  required
                 >
                   {DOC_TYPES.map((t) => (
                     <option key={t} value={t}>
@@ -410,6 +517,20 @@ const openSelectedFile = async () => {
                   ))}
                 </select>
               </label>
+
+              {docType === "Rezept" ? (
+                <label className="docsLabel">
+                  Medikament
+                  <input
+                    className="docsInput"
+                    value={medication}
+                    onChange={(e) => setMedication(e.target.value)}
+                    placeholder="z.B. Ibuprofen 400 mg"
+                    required
+                  />
+                </label>
+              ) : null}
+
 
               <label className="docsLabel">
                 Datei
@@ -437,77 +558,134 @@ const openSelectedFile = async () => {
           </div>
         </div>
       ) : null}
-       {isOpenModalOpen && selectedDoc ? (
-        <div className="docsModalBackdrop" onMouseDown={closeOpenModal}>
-          <div className="docsModal" onMouseDown={(e) => e.stopPropagation()}>
-            <div className="docsModalHeader">
-              <div className="docsModalTitle">Dokument</div>
-              <button
-                className="docsModalClose"
-                onClick={closeOpenModal}
-                type="button"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="docsModalForm">
-              <div className="docsHint">
-                Ansicht der Dokumente
-              </div>
-
-              <div className="docsLabel">
-                Titel
-                <div className="docsInput docsInputReadOnly">
-                  {selectedDoc.title}
-                </div>
-              </div>
-
-              <div className="docsLabel">
-                Datum der Untersuchung
-                <div className="docsInput docsInputReadOnly">
-                  {formatDate(selectedDoc.serviceDate)}
-                </div>
-              </div>
-
-              <div className="docsLabel">
-                Arzt / Einrichtung
-                <div className="docsInput docsInputReadOnly">
-                  {selectedDoc.provider}
-                </div>
-              </div>
-
-              <div className="docsLabel">
-                Dokumenttyp
-                <div className="docsInput docsInputReadOnly">
-                  {selectedDoc.docType}
-                </div>
-              </div>
-              
-              <div className="docsLabel">
-                Datei
-                {selectedDoc.fileId ? (
-                  <button className="docsOpen" type="button" onClick={openSelectedFile}>
-                    Datei öffnen
+          {isOpenModalOpen && selectedDoc ? (
+            <div className="docsModalBackdrop" onMouseDown={closeOpenModal}>
+              <div className="docsModal" onMouseDown={(e) => e.stopPropagation()}>
+                <div className="docsModalHeader">
+                  <div className="docsModalTitle">Dokument bearbeiten</div>
+                  <button className="docsModalClose" onClick={closeOpenModal} type="button">
+                    ✕
                   </button>
-                ) : (
-                  <div className="docsInput">Keine Datei vorhanden</div>
-                )}
-              </div>
+                </div>
 
-              <div className="docsModalActions">
-                <button
-                  className="docsPrimary"
-                  type="button"
-                  onClick={closeOpenModal}
-                >
-                  Schliessen
-                </button>
+                <div className="docsModalForm">
+                  <div className="docsHint">Bearbeite die Felder und speichere.</div>
+
+                  <label className="docsLabel">
+                    Titel
+                    <input
+                      className="docsInput"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      required
+                    />
+                  </label>
+
+                  <label className="docsLabel">
+                    Datum der Untersuchung
+                    <input
+                      className="docsInput"
+                      type="date"
+                      value={editServiceDate}
+                      onChange={(e) => setEditServiceDate(e.target.value)}
+                      required
+                    />
+                  </label>
+
+                  <div className="docsLabel">
+                    <div>Arzt / Einrichtung</div>
+
+                    <select
+                      className="docsSelect"
+                      value={editProviderChoice}
+                      onChange={(e) => setEditProviderChoice(e.target.value)}
+                      required
+                    >
+                      {providers.map((p) => (
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
+                      ))}
+                      <option value="__custom__">Neu eingeben</option>
+                    </select>
+
+                    {editProviderChoice === "__custom__" ? (
+                      <input
+                        className="docsInput"
+                        value={editProviderCustom}
+                        onChange={(e) => setEditProviderCustom(e.target.value)}
+                        placeholder="z.B. USZ Zuerich"
+                        required
+                      />
+                    ) : null}
+                  </div>
+                  <label className="docsLabel">
+                    Dokumenttyp
+                    <select
+                      className="docsSelect"
+                      value={editDocType}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setEditDocType(v);
+
+                        if (v !== "Rezept") {
+                          setEditMedication("");
+                        }
+                      }}
+                      required
+                    >
+                      {DOC_TYPES.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  {editDocType === "Rezept" ? (
+                    <label className="docsLabel">
+                      Medikament
+                      <input
+                        className="docsInput"
+                        value={editMedication}
+                        onChange={(e) => setEditMedication(e.target.value)}
+                        placeholder="z.B. Ibuprofen 400 mg"
+                        required
+                      />
+                    </label>
+                  ) : null}
+
+
+                  <div className="docsLabel">
+                    <div>Datei</div>
+                    {selectedDoc.fileId ? (
+                      <button className="docsOpen" type="button" onClick={openSelectedFile}>
+                        Datei öffnen
+                      </button>
+                    ) : (
+                      <div className="docsInput">Keine Datei vorhanden</div>
+                    )}
+                  </div>
+
+                  <div className="docsModalActions docsModalActionsBetween">
+                    <button className="docsDanger" type="button" onClick={deleteSelectedDoc}>
+                      Löschen
+                    </button>
+
+                    <div className="docsModalActionsRight">
+                      <button className="docsSecondary" type="button" onClick={closeOpenModal}>
+                        Abbrechen
+                      </button>
+                      <button className="docsPrimary" type="button" onClick={saveSelectedDocEdits}>
+                        Speichern
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      ) : null}
+          ) : null}
+
     </div>
   );
 }
