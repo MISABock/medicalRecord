@@ -24,5 +24,6 @@ class Document(Base):
     service_date = Column(Date, nullable=False, index=True)   # Wann?
     provider = Column(String, nullable=False, index=True)     # Wer/Wo?
     doc_type = Column(String, nullable=False, index=True)     # Was?
+    medication = Column(String, nullable=False, index=True)
 
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)

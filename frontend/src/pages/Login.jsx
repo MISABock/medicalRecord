@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { apiPost } from "../api/client";
 import "./Login.css";
 import AuthNav from "../components/AuthNav";
+import { API_URL } from "../api/client";
+
 
 
 export default function Login() {
@@ -66,10 +68,12 @@ export default function Login() {
             />
           </label>
 
+
           <button className="loginButton" type="submit" disabled={loading}>
             {loading ? "Anmelden..." : "Anmelden"}
           </button>
 
+          <div className="loginSubtitle">API: {API_URL}</div>
           {msg ? (
             <div className={`loginMessage ${msg.toLowerCase().includes("eingeloggt") ? "ok" : "error"}`}>
               {msg}

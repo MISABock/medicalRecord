@@ -186,7 +186,10 @@ def create_document(
     service_date = payload.get("service_date")
     provider = payload.get("provider")
     doc_type = payload.get("doc_type")
+    medication = payload.get("medication")
     file_id = payload.get("file_id")
+
+    
 
     if not title or not service_date or not provider or not doc_type:
         raise HTTPException(status_code=400, detail="Pflichtfelder fehlen.")
@@ -215,6 +218,7 @@ def create_document(
         service_date=service_date_parsed,
         provider=provider,
         doc_type=doc_type,
+        medication=medication,
         file_id=file_row.id,
     )
 
@@ -229,8 +233,10 @@ def create_document(
         "service_date": doc.service_date.isoformat(),
         "provider": doc.provider,
         "doc_type": doc.doc_type,
+        "medication": str(doc.medication),
         "file_id": str(doc.file_id) if doc.file_id else None,
         "created_at": doc.created_at.isoformat(),
+        
     }
 
 
@@ -255,6 +261,7 @@ def update_document(
     service_date = payload.get("service_date")
     provider = payload.get("provider")
     doc_type = payload.get("doc_type")
+    medication = payload.get("medication")
 
     if not title or not service_date or not provider or not doc_type:
         raise HTTPException(status_code=400, detail="Pflichtfelder fehlen.")
@@ -268,6 +275,7 @@ def update_document(
     doc.service_date = service_date_parsed
     doc.provider = provider
     doc.doc_type = doc_type
+    doc.medication = medication
 
     db.commit()
     db.refresh(doc)
@@ -278,6 +286,7 @@ def update_document(
         "title": doc.title,
         "service_date": doc.service_date.isoformat(),
         "provider": doc.provider,
+        "medication": str(doc.medication),
         "doc_type": doc.doc_type,
         "file_id": str(doc.file_id) if doc.file_id else None,
         "created_at": doc.created_at.isoformat(),

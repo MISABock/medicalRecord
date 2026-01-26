@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import "./Documents.css";
-import { apiGet, apiPost, apiPostForm } from "../api/client";
+import { apiGet, apiPost, apiPostForm, API_URL } from "../api/client";
 import HomeNav from "../components/HomeNav";
 
 
@@ -102,6 +102,7 @@ export default function Documents() {
         serviceDate: d.service_date,
         provider: d.provider,
         docType: d.doc_type,
+        medication: d.medication,
         fileId: d.file_id,
       }));
 
@@ -202,6 +203,7 @@ export default function Documents() {
       service_date: editServiceDate,
       provider: providerValue,
       doc_type: editDocType,
+      medication:medication,
     };
 
     const updated = await apiPost(`/documents/${selectedDoc.id}/update`, payload);
@@ -273,6 +275,7 @@ export default function Documents() {
           title: created.title,
           serviceDate: created.service_date,
           provider: created.provider,
+          medication: created.medication,
           docType: created.doc_type,
           fileId: created.file_id,
         },
@@ -293,7 +296,7 @@ const openSelectedFile = async () => {
   try {
     const token = localStorage.getItem("token");
 
-    const res = await fetch(`http://localhost:8000/documents/${selectedDoc.id}/file`, {
+    const res = await fetch(`${API_URL}/documents/${selectedDoc.id}/file`, {
       method: "GET",
       headers: {
         Authorization: token ? `Bearer ${token}` : "",
