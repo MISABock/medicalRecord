@@ -5,6 +5,10 @@ import HomeNav from "../components/HomeNav";
 
 
 import DocumentsGroupedView from "../components/documents/DocumentsGroupedView";
+import DocumentsMedicationView from "../components/documents/DocumentsMedicationView";
+import DocumentsDoctorNoteView from "../components/documents/DocumentsDoctorNoteView";
+
+
 
 
 
@@ -15,6 +19,7 @@ const DOC_TYPES = [
   "Bildgebung",
   "Bericht",
   "Sonstiges",
+  "Arztzeugnis"
 ];
 
 
@@ -59,6 +64,13 @@ export default function Documents() {
   const [medication, setMedication] = useState("");
 
 
+  const [medEditDoc, setMedEditDoc] = useState(null);
+  const [medEditValue, setMedEditValue] = useState("");
+
+  const [moreOpen, setMoreOpen] = useState(false);
+
+
+
 
 
   const openDoc = (doc) => {
@@ -86,7 +98,7 @@ export default function Documents() {
   const closeOpenModal = () => {
     setIsOpenModalOpen(false);
     setSelectedDoc(null);
-    setMedication("");
+    setEditMedication("");
 
   };
 
@@ -120,14 +132,6 @@ export default function Documents() {
     const set = new Set(docs.map((d) => d.provider).filter(Boolean));
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [docs]);
-
-  const docTypes = useMemo(() => {
-    const set = new Set(docs.map((d) => d.docType).filter(Boolean));
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, [docs]);
-
-
-
 
   const groupedByProvider = useMemo(() => {
     const map = new Map();
@@ -203,7 +207,7 @@ export default function Documents() {
       service_date: editServiceDate,
       provider: providerValue,
       doc_type: editDocType,
-      medication:medication,
+      medication: editDocType === "Rezept" ? editMedication.trim() : null,
     };
 
     const updated = await apiPost(`/documents/${selectedDoc.id}/update`, payload);
@@ -228,6 +232,80 @@ export default function Documents() {
   }
 };
 
+const openMedicationEdit = (doc) => {
+  setMedEditDoc(doc);
+  setMedEditValue(doc.medication || "");
+};
+
+const closeMedicationEdit = () => {
+  setMedEditDoc(null);
+  setMedEditValue("");
+};
+
+const saveMedicationOnly = async () => {
+  if (!medEditDoc?.id) return;
+
+  const m = medEditValue.trim();
+  if (!m) {
+    alert("Bitte Medikament eingeben.");
+    return;
+  }
+
+  try {
+    const payload = {
+      title: medEditDoc.title,
+      service_date: (medEditDoc.serviceDate || "").slice(0, 10),
+      provider: medEditDoc.provider,
+      doc_type: medEditDoc.docType,
+      medication: m,
+    };
+
+    const updated = await apiPost(`/documents/${medEditDoc.id}/update`, payload);
+
+    const mapped = {
+      id: updated.id,
+      title: updated.title,
+      serviceDate: updated.service_date,
+      provider: updated.provider,
+      docType: updated.doc_type,
+      medication: updated.medication,
+      fileId: updated.file_id,
+    };
+
+    setDocs((prev) => prev.map((d) => (d.id === mapped.id ? mapped : d)));
+    closeMedicationEdit();
+  } catch (err) {
+    console.error(err);
+    alert("Fehler beim Speichern.");
+  }
+};
+
+
+const openFileForDoc = async (doc) => {
+  if (!doc?.id) return;
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(`${API_URL}/documents/${doc.id}/file`, {
+      method: "GET",
+      headers: { Authorization: token ? `Bearer ${token}` : "" },
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || "Download fehlgeschlagen");
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    window.open(url, "_blank", "noreferrer");
+    setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+  } catch (err) {
+    console.error(err);
+    alert("Fehler beim Oeffnen der Datei.");
+  }
+};
 
 
 
@@ -357,27 +435,79 @@ const deleteSelectedDoc = async () => {
         <div className="docsActions">
           <div className="docsSegment">
             <button
-              className={view === "provider" ? "active" : ""}
-              onClick={() => setView("provider")}
-              type="button"
-            >
-              Provider
-            </button>
-            <button
-              className={view === "timeline" ? "active" : ""}
-              onClick={() => setView("timeline")}
-              type="button"
-            >
-              Timeline
-            </button>
-            <button
               className={view === "doctype" ? "active" : ""}
-              onClick={() => setView("doctype")}
+              onClick={() => {
+                setView("doctype");
+                setMoreOpen(false);
+              }}
               type="button"
             >
               Dokumenttyp
             </button>
+
+            <button
+              className={view === "timeline" ? "active" : ""}
+              onClick={() => {
+                setView("timeline");
+                setMoreOpen(false);
+              }}
+              type="button"
+            >
+              Timeline
+            </button>
+
+            <div className="docsMore">
+              <button
+                className={
+                  view === "provider" || view === "medication" || view === "doctorNote"
+                    ? "active"
+                    : ""
+                }
+                onClick={() => setMoreOpen((v) => !v)}
+                type="button"
+              >
+                Weitere
+              </button>
+
+              {moreOpen ? (
+                <div className="docsMoreMenu" role="menu">
+                  <button
+                    type="button"
+                    className={view === "provider" ? "active" : ""}
+                    onClick={() => {
+                      setView("provider");
+                      setMoreOpen(false);
+                    }}
+                  >
+                    Provider
+                  </button>
+
+                  <button
+                    type="button"
+                    className={view === "medication" ? "active" : ""}
+                    onClick={() => {
+                      setView("medication");
+                      setMoreOpen(false);
+                    }}
+                  >
+                    Medikamente
+                  </button>
+
+                  <button
+                    type="button"
+                    className={view === "doctorNote" ? "active" : ""}
+                    onClick={() => {
+                      setView("doctorNote");
+                      setMoreOpen(false);
+                    }}
+                  >
+                    Zeugnisse
+                  </button>
+                </div>
+              ) : null}
+            </div>
           </div>
+
 
           <button className="docsPrimary" onClick={openModal} type="button">
             Neuer Bericht
@@ -397,7 +527,23 @@ const deleteSelectedDoc = async () => {
           onOpenDoc={openDoc}
           metaRightField="provider"
         />
-      ) : (
+      )  : view === "medication" ? (
+        <DocumentsMedicationView
+          docs={docs}
+          onOpenFile={openFileForDoc}
+          onEditMedication={openMedicationEdit}
+        />
+      )
+       : view === "doctorNote" ? (
+        <DocumentsDoctorNoteView
+          docs={docs}
+          onOpenFile={openFileForDoc}
+        />
+      )
+
+
+      
+      : (
         <div className="docsTimeline">
           {timeline.map((d) => (
             <div key={d.id} className="timeItem">
@@ -688,6 +834,42 @@ const deleteSelectedDoc = async () => {
               </div>
             </div>
           ) : null}
+
+          {medEditDoc ? (
+            <div className="docsModalBackdrop" onMouseDown={closeMedicationEdit}>
+              <div className="docsModal" onMouseDown={(e) => e.stopPropagation()}>
+                <div className="docsModalHeader">
+                  <div className="docsModalTitle">Medikament bearbeiten</div>
+                  <button className="docsModalClose" onClick={closeMedicationEdit} type="button">
+                    ✕
+                  </button>
+                </div>
+
+                <div className="docsModalForm">
+                  <label className="docsLabel">
+                    Medikament
+                    <input
+                      className="docsInput"
+                      value={medEditValue}
+                      onChange={(e) => setMedEditValue(e.target.value)}
+                      placeholder="z.B. Ibuprofen 400 mg"
+                      required
+                    />
+                  </label>
+
+                  <div className="docsModalActions">
+                    <button className="docsSecondary" type="button" onClick={closeMedicationEdit}>
+                      Abbrechen
+                    </button>
+                    <button className="docsPrimary" type="button" onClick={saveMedicationOnly}>
+                      Speichern
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
 
     </div>
   );

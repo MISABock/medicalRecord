@@ -119,6 +119,7 @@ def get_documents(
             "provider": doc.provider,
             "doc_type": doc.doc_type,
             "file_id": str(fid) if (fid := getattr(doc, "file_id", None)) else None,
+            "medication": doc.medication,
             "created_at": doc.created_at.isoformat(),
         }
         for doc in docs
@@ -188,6 +189,8 @@ def create_document(
     doc_type = payload.get("doc_type")
     medication = payload.get("medication")
     file_id = payload.get("file_id")
+    
+    
 
     
 
@@ -221,6 +224,8 @@ def create_document(
         medication=medication,
         file_id=file_row.id,
     )
+    
+    print(doc)
 
     db.add(doc)
     db.commit()
@@ -233,7 +238,7 @@ def create_document(
         "service_date": doc.service_date.isoformat(),
         "provider": doc.provider,
         "doc_type": doc.doc_type,
-        "medication": str(doc.medication),
+        "medication": doc.medication,
         "file_id": str(doc.file_id) if doc.file_id else None,
         "created_at": doc.created_at.isoformat(),
         

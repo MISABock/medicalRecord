@@ -29,19 +29,36 @@
   align-items: center;
 }
 
+/* Segment Buttons */
 .docsSegment {
   display: flex;
+  align-items: center;
   border: 1px solid #e9edf5;
   border-radius: 12px;
-  overflow: hidden;
+  overflow: visible;
   background: #ffffff;
 }
 
 .docsSegment button {
   height: 40px;
-  padding: 0 12px;
+  padding: 0 14px;
   font-weight: 800;
   color: #475569;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.docsSegment > button + button {
+  border-left: 1px solid #e9edf5;
+}
+
+.docsSegment .docsMore > button {
+  border-left: 1px solid #e9edf5;
+}
+
+.docsSegment button:hover {
+  background: #f8fafc;
 }
 
 .docsSegment button.active {
@@ -56,6 +73,8 @@
   background: #7c3aed;
   color: #ffffff;
   font-weight: 800;
+  border: 0;
+  cursor: pointer;
 }
 
 .docsPrimary:hover {
@@ -70,12 +89,14 @@
   background: #ffffff;
   font-weight: 800;
   color: #0f172a;
+  cursor: pointer;
 }
 
 .docsSecondary:hover {
   background: #f8fafc;
 }
 
+/* Provider grid */
 .docsProviderGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -159,6 +180,7 @@
   background: #ffffff;
   font-weight: 800;
   color: #0f172a;
+  cursor: pointer;
 }
 
 .docsOpen:hover {
@@ -166,8 +188,13 @@
   border-color: #d9e1ee;
 }
 
-/* Timeline */
+.docsInputReadOnly {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+}
 
+/* Timeline */
 .docsTimeline {
   display: flex;
   flex-direction: column;
@@ -186,6 +213,16 @@
   justify-content: center;
 }
 
+.timeDateLeft {
+  position: absolute;
+  top: 8px;
+  left: -6px;
+  transform: translateX(-100%);
+  font-size: 11px;
+  font-weight: 800;
+  color: #7c3aed;
+  white-space: nowrap;
+}
 
 .timeDot {
   width: 10px;
@@ -244,8 +281,35 @@
   justify-content: flex-end;
 }
 
-/* Modal */
+.timeCardClickable {
+  cursor: pointer;
+}
 
+.timeCardClickable:hover {
+  border-color: #d9e1ee;
+  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
+}
+
+.timeCardClickable:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.35);
+}
+
+/* Clickable rows */
+.docsRowClickable {
+  cursor: pointer;
+}
+
+.docsRowClickable:hover {
+  background: #f8fafc;
+}
+
+.docsRowClickable:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.35);
+}
+
+/* Modal */
 .docsModalBackdrop {
   position: fixed;
   inset: 0;
@@ -288,6 +352,7 @@
   border: 1px solid #e9edf5;
   background: #ffffff;
   font-weight: 900;
+  cursor: pointer;
 }
 
 .docsModalClose:hover {
@@ -321,9 +386,8 @@
 
 .docsModalActionsRight {
   display: flex;
-  gap: 12px; /* oder 16px, je nach Geschmack */
+  gap: 12px;
 }
-
 
 .docsInput,
 .docsSelect {
@@ -338,11 +402,10 @@
 .docsInput[type="file"] {
   display: flex;
   align-items: center;
-  height: 44px; /* gleiche Höhe wie andere Inputs */
+  height: 44px;
   padding: 9px 10px;
   box-sizing: border-box;
 }
-
 
 .docsInput:focus,
 .docsSelect:focus {
@@ -363,6 +426,205 @@
   color: #64748b;
 }
 
+/* Medication view */
+.medView {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.medLeft {
+  background: #ffffff;
+  border: 1px solid #e7e9f1;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.medSearchWrap {
+  padding: 12px;
+  border-bottom: 1px solid #e7e9f1;
+}
+
+.medSearch {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e7e9f1;
+  border-radius: 12px;
+  outline: none;
+}
+
+.medSearch:focus {
+  border-color: #c9d3ff;
+}
+
+.medCount {
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.medList {
+  display: flex;
+  flex-direction: column;
+}
+
+.medItem {
+  text-align: left;
+  padding: 12px;
+  border: 0;
+  background: transparent;
+  border-bottom: 1px solid #f0f1f6;
+  cursor: pointer;
+}
+
+.medItem:hover {
+  background: #f6f7fb;
+}
+
+.medItemActive {
+  background: #eef2ff;
+}
+
+.medItemName {
+  font-weight: 600;
+}
+
+.medItemMeta {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+.medRight {
+  background: #ffffff;
+  border: 1px solid #e7e9f1;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.medHeader {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e7e9f1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.medHeaderTitle {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.medHeaderMeta {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.medDocs {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.medDocRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #f0f1f6;
+  background: #ffffff;
+}
+
+.medDocRow:hover {
+  background: #f6f7fb;
+}
+
+.medDocMain {
+  min-width: 0;
+}
+
+.medDocMetaLine {
+  font-size: 13px;
+  opacity: 0.85;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.medSep {
+  opacity: 0.6;
+  margin: 0 8px;
+}
+
+.medDocActions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.medAction {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #e7e9f1;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.medAction:hover {
+  background: #eef2ff;
+}
+
+.medAction:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Dropdown */
+.docsMore {
+  position: relative;
+}
+
+.docsMoreMenu {
+  position: absolute;
+  top: 46px;
+  right: 0;
+  min-width: 180px;
+  background: #ffffff;
+  border: 1px solid #e9edf5;
+  border-radius: 12px;
+  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.12);
+  padding: 6px;
+  z-index: 9999;
+}
+
+.docsMoreMenu button {
+  width: 100%;
+  text-align: left;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 0;
+  background: transparent;
+  font-weight: 800;
+  color: #475569;
+  cursor: pointer;
+}
+
+.docsMoreMenu button:hover {
+  background: #f8fafc;
+}
+
+.docsMoreMenu button.active {
+  background: #f4f7ff;
+  color: #0f172a;
+}
+
 @media (max-width: 820px) {
   .docsProviderGrid {
     grid-template-columns: 1fr;
@@ -376,57 +638,8 @@
   .docsActions {
     justify-content: space-between;
   }
-}
-.docsInputReadOnly {
-  display: flex;
-  align-items: center;
-  min-height: 56px;
-}
-.timeDateLeft {
-  position: absolute;
-  top: 8px;
-  left: -6px;
-  transform: translateX(-100%);
-  font-size: 11px;
-  font-weight: 800;
-  color: #7c3aed;
-  white-space: nowrap;
-}
-.docsRowClickable {
-  cursor: pointer;
-}
 
-.docsRowClickable:hover {
-  background: #f8fafc;
-}
-
-.docsRowClickable:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.35);
-}
-.docsRowClickable {
-  cursor: pointer;
-}
-
-.docsRowClickable:hover {
-  background: #f8fafc;
-}
-
-.docsRowClickable:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.35);
-}
-
-.timeCardClickable {
-  cursor: pointer;
-}
-
-.timeCardClickable:hover {
-  border-color: #d9e1ee;
-  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
-}
-
-.timeCardClickable:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.35);
+  .medView {
+    grid-template-columns: 1fr;
+  }
 }
