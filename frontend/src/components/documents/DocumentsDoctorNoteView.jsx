@@ -16,24 +16,26 @@ export default function DocumentsDoctorNoteView({ docs, onOpenFile }) {
     const arr = [];
 
     for (const d of docs) {
-      // Annahme: Arztzeugnis ist an einem Feld erkennbar.
-      // Passe diese Bedingung an dein Datenmodell an.
-      // Beispiele: d.type === "DOCTOR_NOTE" oder d.category === "DoctorNote" oder d.isDoctorNote === true
+
       const isDoctorNote =
         d?.type === "DOCTOR_NOTE" ||
         d?.category === "DOCTOR_NOTE" ||
-        d?.documentType === "DOCTOR_NOTE" ||
+        d?.docType === "Arztzeugnis" ||
         d?.kind === "DOCTOR_NOTE" ||
         d?.isDoctorNote === true;
 
-      if (!isDoctorNote) continue;
 
+          console.log("doc", d?.id, "isDoctorNote", isDoctorNote, d);
+      if (!isDoctorNote) continue;
+      
       arr.push(d);
     }
 
     arr.sort((a, b) => (a.serviceDate < b.serviceDate ? 1 : -1));
     return arr;
   }, [docs]);
+
+
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();

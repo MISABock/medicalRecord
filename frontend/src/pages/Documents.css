@@ -1,8 +1,24 @@
+/* ============================================================================
+   BASE LAYOUT
+   ============================================================================ */
+
 .docsPage {
   max-width: 1100px;
   margin: 0 auto;
   padding: 24px 18px 48px 18px;
 }
+
+.docsEmpty {
+  padding: 40px 20px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+
+/* ============================================================================
+   HEADER SECTION
+   ============================================================================ */
 
 .docsTop {
   display: flex;
@@ -29,7 +45,65 @@
   align-items: center;
 }
 
-/* Segment Buttons */
+
+/* ============================================================================
+   BUTTONS
+   ============================================================================ */
+
+/* Primary Button */
+.docsPrimary {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: #7c3aed;
+  color: #ffffff;
+  font-weight: 800;
+  border: 0;
+  cursor: pointer;
+}
+
+.docsPrimary:hover {
+  filter: brightness(0.97);
+}
+
+/* Secondary Button */
+.docsSecondary {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #e9edf5;
+  background: #ffffff;
+  font-weight: 800;
+  color: #0f172a;
+  cursor: pointer;
+}
+
+.docsSecondary:hover {
+  background: #f8fafc;
+}
+
+/* Open Button */
+.docsOpen {
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid #e9edf5;
+  background: #ffffff;
+  font-weight: 800;
+  color: #0f172a;
+  cursor: pointer;
+}
+
+.docsOpen:hover {
+  background: #ffffff;
+  border-color: #d9e1ee;
+}
+
+
+/* ============================================================================
+   SEGMENT CONTROLS
+   ============================================================================ */
+
 .docsSegment {
   display: flex;
   align-items: center;
@@ -66,37 +140,55 @@
   color: #0f172a;
 }
 
-.docsPrimary {
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 12px;
-  background: #7c3aed;
-  color: #ffffff;
-  font-weight: 800;
-  border: 0;
-  cursor: pointer;
+
+/* ============================================================================
+   DROPDOWN MENU
+   ============================================================================ */
+
+.docsMore {
+  position: relative;
 }
 
-.docsPrimary:hover {
-  filter: brightness(0.97);
-}
-
-.docsSecondary {
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 12px;
-  border: 1px solid #e9edf5;
+.docsMoreMenu {
+  position: absolute;
+  top: 46px;
+  right: 0;
+  min-width: 180px;
   background: #ffffff;
+  border: 1px solid #e9edf5;
+  border-radius: 12px;
+  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.12);
+  padding: 6px;
+  z-index: 9999;
+}
+
+.docsMoreMenu button {
+  width: 100%;
+  text-align: left;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 0;
+  background: transparent;
   font-weight: 800;
-  color: #0f172a;
+  color: #475569;
   cursor: pointer;
 }
 
-.docsSecondary:hover {
+.docsMoreMenu button:hover {
   background: #f8fafc;
 }
 
-/* Provider grid */
+.docsMoreMenu button.active {
+  background: #f4f7ff;
+  color: #0f172a;
+}
+
+
+/* ============================================================================
+   PROVIDER GRID
+   ============================================================================ */
+
 .docsProviderGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -131,6 +223,11 @@
   font-size: 12px;
   color: #64748b;
 }
+
+
+/* ============================================================================
+   DOCUMENT LIST
+   ============================================================================ */
 
 .docsList {
   padding: 6px;
@@ -168,33 +265,28 @@
   gap: 8px;
 }
 
+.docsRowClickable {
+  cursor: pointer;
+}
+
+.docsRowClickable:hover {
+  background: #f8fafc;
+}
+
+.docsRowClickable:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.35);
+}
+
 .dot {
   opacity: 0.7;
 }
 
-.docsOpen {
-  height: 34px;
-  padding: 0 10px;
-  border-radius: 10px;
-  border: 1px solid #e9edf5;
-  background: #ffffff;
-  font-weight: 800;
-  color: #0f172a;
-  cursor: pointer;
-}
 
-.docsOpen:hover {
-  background: #ffffff;
-  border-color: #d9e1ee;
-}
+/* ============================================================================
+   TIMELINE VIEW
+   ============================================================================ */
 
-.docsInputReadOnly {
-  display: flex;
-  align-items: center;
-  min-height: 56px;
-}
-
-/* Timeline */
 .docsTimeline {
   display: flex;
   flex-direction: column;
@@ -295,21 +387,11 @@
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.35);
 }
 
-/* Clickable rows */
-.docsRowClickable {
-  cursor: pointer;
-}
 
-.docsRowClickable:hover {
-  background: #f8fafc;
-}
+/* ============================================================================
+   MODAL
+   ============================================================================ */
 
-.docsRowClickable:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.35);
-}
-
-/* Modal */
 .docsModalBackdrop {
   position: fixed;
   inset: 0;
@@ -366,14 +448,22 @@
   gap: 12px;
 }
 
-.docsHint {
-  font-size: 12px;
-  color: #475569;
-  border: 1px solid #eef2f8;
-  background: #f8fafc;
-  padding: 10px 12px;
-  border-radius: 12px;
+.docsModalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 2px;
 }
+
+.docsModalActionsRight {
+  display: flex;
+  gap: 12px;
+}
+
+
+/* ============================================================================
+   FORM ELEMENTS
+   ============================================================================ */
 
 .docsLabel {
   display: flex;
@@ -382,11 +472,6 @@
   font-size: 13px;
   font-weight: 800;
   color: #0f172a;
-}
-
-.docsModalActionsRight {
-  display: flex;
-  gap: 12px;
 }
 
 .docsInput,
@@ -413,11 +498,19 @@
   box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12);
 }
 
-.docsModalActions {
+.docsInputReadOnly {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 2px;
+  align-items: center;
+  min-height: 56px;
+}
+
+.docsHint {
+  font-size: 12px;
+  color: #475569;
+  border: 1px solid #eef2f8;
+  background: #f8fafc;
+  padding: 10px 12px;
+  border-radius: 12px;
 }
 
 .docsFileNote {
@@ -426,7 +519,11 @@
   color: #64748b;
 }
 
-/* Medication view */
+
+/* ============================================================================
+   MEDICATION VIEW (Two-Column Layout)
+   ============================================================================ */
+
 .medView {
   display: grid;
   grid-template-columns: 320px 1fr;
@@ -434,6 +531,7 @@
   margin-top: 12px;
 }
 
+/* Left Sidebar - Medication List */
 .medLeft {
   background: #ffffff;
   border: 1px solid #e7e9f1;
@@ -496,6 +594,7 @@
   margin-top: 4px;
 }
 
+/* Right Panel - Medication Details */
 .medRight {
   background: #ffffff;
   border: 1px solid #e7e9f1;
@@ -585,45 +684,129 @@
   cursor: not-allowed;
 }
 
-/* Dropdown */
-.docsMore {
-  position: relative;
+
+/* ============================================================================
+   DOCTOR NOTE VIEW (Single Column Layout)
+   ============================================================================ */
+
+.docNoteView {
+  margin-top: 12px;
 }
 
-.docsMoreMenu {
-  position: absolute;
-  top: 46px;
-  right: 0;
-  min-width: 180px;
+/* Top Section - Search */
+.docNoteTop {
   background: #ffffff;
-  border: 1px solid #e9edf5;
-  border-radius: 12px;
-  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.12);
-  padding: 6px;
-  z-index: 9999;
+  border: 1px solid #e7e9f1;
+  border-radius: 16px;
+  margin-bottom: 16px;
 }
 
-.docsMoreMenu button {
+.docNoteSearchWrap {
+  padding: 12px;
+}
+
+.docNoteSearch {
   width: 100%;
-  text-align: left;
-  height: 38px;
-  padding: 0 12px;
-  border-radius: 10px;
-  border: 0;
-  background: transparent;
-  font-weight: 800;
-  color: #475569;
-  cursor: pointer;
+  padding: 10px 12px;
+  border: 1px solid #e7e9f1;
+  border-radius: 12px;
+  outline: none;
 }
 
-.docsMoreMenu button:hover {
-  background: #f8fafc;
+.docNoteSearch:focus {
+  border-color: #c9d3ff;
 }
 
-.docsMoreMenu button.active {
-  background: #f4f7ff;
+.docNoteCount {
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* List Section - Doctor Notes */
+.docNoteList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.docNoteRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid #e7e9f1;
+  background: #ffffff;
+}
+
+.docNoteRow:hover {
+  background: #f6f7fb;
+  border-color: #d9e1ee;
+}
+
+.docNoteMain {
+  min-width: 0;
+  flex: 1;
+}
+
+.docNoteMetaLine {
+  font-size: 13px;
+  opacity: 0.85;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.docSep {
+  opacity: 0.6;
+  margin: 0 8px;
+}
+
+.docNoteTitle {
+  font-size: 14px;
+  font-weight: 700;
   color: #0f172a;
+  margin-bottom: 6px;
 }
+
+.docNoteText {
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.docNoteActions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.docNoteAction {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #e7e9f1;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.docNoteAction:hover {
+  background: #eef2ff;
+}
+
+.docNoteAction:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* ============================================================================
+   RESPONSIVE MEDIA QUERIES
+   ============================================================================ */
 
 @media (max-width: 820px) {
   .docsProviderGrid {
@@ -641,5 +824,17 @@
 
   .medView {
     grid-template-columns: 1fr;
+  }
+
+  .docNoteRow {
+    flex-direction: column;
+  }
+
+  .docNoteActions {
+    width: 100%;
+  }
+
+  .docNoteAction {
+    flex: 1;
   }
 }
