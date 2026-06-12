@@ -267,6 +267,7 @@ def update_document(
     provider = payload.get("provider")
     doc_type = payload.get("doc_type")
     medication = payload.get("medication")
+    file_id = payload.get("file_id")
 
     if not title or not service_date or not provider or not doc_type:
         raise HTTPException(status_code=400, detail="Pflichtfelder fehlen.")
@@ -281,6 +282,17 @@ def update_document(
     doc.provider = provider
     doc.doc_type = doc_type
     doc.medication = medication
+
+    if file_id:
+        file_row = (
+            db.query(File)
+            .filter(File.id == file_id)
+            .filter(File.user_id == current_user.id)
+            .first()
+        )
+        if not file_row:
+            raise HTTPException(status_code=400, detail="Ungueltige Datei.")
+        doc.file_id = file_row.id
 
     db.commit()
     db.refresh(doc)

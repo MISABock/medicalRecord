@@ -268,8 +268,8 @@ export default function Documents() {
       ) : view === "medication" ? (
         <DocumentsMedicationView
           docs={docs}
-          onOpenFile={openFileForDoc}
-          onEditMedication={openMedicationModal}
+          onOpenDoc={openEditModal}
+          onSave={handleModalSave}
         />
       ) : view === "doctorNote" ? (
         <DocumentsDoctorNoteView docs={docs} onOpenFile={openFileForDoc} />

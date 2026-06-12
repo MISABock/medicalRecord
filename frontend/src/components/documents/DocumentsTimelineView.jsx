@@ -232,20 +232,17 @@ export default function DocumentsTimelineView({ docs, onOpenDoc }) {
                     <circle cx={item.x} cy={item.cy} r={DOT_R + 5} fill={c.bg} opacity={0.9} />
                   )}
 
-                  {/* Dot */}
-                  <circle cx={item.x} cy={item.cy} r={DOT_R} fill={c.accent}
-                    opacity={isHovered ? 1 : 0.85} />
+                  {/* Dot — larger for multi so number fits */}
+                  <circle cx={item.x} cy={item.cy} r={isMulti ? DOT_R + 3 : DOT_R}
+                    fill={c.accent} opacity={isHovered ? 1 : 0.85} />
 
-                  {/* Count badge for multi-docs */}
+                  {/* Count label inside dot */}
                   {isMulti && (
-                    <g pointerEvents="none">
-                      <circle cx={item.x + DOT_R} cy={item.cy - DOT_R} r={7} fill={c.accent} />
-                      <text x={item.x + DOT_R} y={item.cy - DOT_R + 3.5}
-                        textAnchor="middle" fontSize="8" fontWeight="900"
-                        fill="white" fontFamily={SVG_FONT}>
-                        {item.count}
-                      </text>
-                    </g>
+                    <text x={item.x} y={item.cy + 4}
+                      textAnchor="middle" fontSize="9" fontWeight="900"
+                      fill="white" fontFamily={SVG_FONT} pointerEvents="none">
+                      {item.count}
+                    </text>
                   )}
 
                   {/* Month label */}
