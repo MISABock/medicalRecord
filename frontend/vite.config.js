@@ -8,6 +8,8 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     allowedHosts: [
+      "localhost",
+      "127.0.0.1",
       "healthyeatingforeveryone.ch",
       "www.healthyeatingforeveryone.ch",
     ],

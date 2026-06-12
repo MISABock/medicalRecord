@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import "./Documents.css";
 import { apiGet, API_URL } from "../api/client";
 import HomeNav from "../components/HomeNav";
 import DocumentsGroupedView from "../components/documents/DocumentsGroupedView";
 import DocumentsMedicationView from "../components/documents/DocumentsMedicationView";
 import DocumentsDoctorNoteView from "../components/documents/DocumentsDoctorNoteView";
+import DocumentsTimelineView from "../components/documents/DocumentsTimelineView";
 import DocumentModal from "../components/documents/DocumentModal";
 
 function formatDate(iso) {
@@ -16,8 +18,25 @@ function formatDate(iso) {
   }
 }
 
+const DOC_TYPE_COLORS = {
+  Blutbild:    { background: '#dcfce7', color: '#15803d' },
+  Bericht:      { background: '#dbeafe', color: '#1d4ed8' },
+  Rezept:      { background: '#fef3c7', color: '#b45309' },
+  Bildgebung:  { background: '#ede9fe', color: '#6d28d9' },
+  Sonstiges:   { background: '#f1f5f9', color: '#475569' },
+  Arztzeugnis: { background: '#ccfbf1', color: '#0f766e' },
+};
+
+function docTypeColor(type) {
+  return DOC_TYPE_COLORS[type] ?? { background: '#f1f5f9', color: '#475569' };
+}
+
 export default function Documents() {
-  const [view, setView] = useState("doctype");
+  const [searchParams] = useSearchParams();
+  const [view, setView] = useState(() => {
+    const v = searchParams.get("view");
+    return ["doctype","timeline","provider","medication","doctorNote"].includes(v) ? v : "doctype";
+  });
   const [docs, setDocs] = useState([]);
   const [moreOpen, setMoreOpen] = useState(false);
 
@@ -90,9 +109,9 @@ export default function Documents() {
     return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
   }, [docs]);
 
-  // Timeline (chronologisch sortiert)
+  // Timeline (chronologisch sortiert, ältestes zuerst für horizontale Darstellung)
   const timeline = useMemo(() => {
-    return [...docs].sort((a, b) => (a.serviceDate < b.serviceDate ? 1 : -1));
+    return [...docs].sort((a, b) => (a.serviceDate < b.serviceDate ? -1 : 1));
   }, [docs]);
 
   // Modal-Funktionen
@@ -156,87 +175,75 @@ export default function Documents() {
   return (
     <div className="docsPage">
       <HomeNav />
-      <header className="docsTop">
+      <div className="docsContent">
+        <header className="docsTop">
         <div>
           <h1 className="docsTitle">Dokumente</h1>
           <p className="docsSubtitle">
-            Gruppiert nach Spital/Praxis oder als Timeline. Upload kommt als nächstes.
+            Alle Berichte, Berichte und Rezepte auf einen Blick.
           </p>
         </div>
 
         <div className="docsActions">
           <div className="docsSegment">
             <button
-              className={view === "doctype" ? "active" : ""}
-              onClick={() => {
-                setView("doctype");
-                setMoreOpen(false);
-              }}
-              type="button"
-            >
-              Dokumenttyp
-            </button>
-
-            <button
               className={view === "timeline" ? "active" : ""}
-              onClick={() => {
-                setView("timeline");
-                setMoreOpen(false);
-              }}
+              onClick={() => { setView("timeline"); setMoreOpen(false); }}
               type="button"
             >
               Timeline
             </button>
 
+            <button
+              className={view === "provider" ? "active" : ""}
+              onClick={() => { setView("provider"); setMoreOpen(false); }}
+              type="button"
+            >
+              Arzt / Praxis
+            </button>
+
+            <button
+              className={view === "medication" ? "active" : ""}
+              onClick={() => { setView("medication"); setMoreOpen(false); }}
+              type="button"
+            >
+              Medikamente
+            </button>
+
             <div className="docsMore">
               <button
                 className={
-                  view === "provider" || view === "medication" || view === "doctorNote"
-                    ? "active"
-                    : ""
+                  view === "doctype" || view === "doctorNote" ? "active" : ""
                 }
                 onClick={() => setMoreOpen((v) => !v)}
                 type="button"
               >
-                Weitere
+                {view === "doctype"
+                  ? "Dokumenttyp"
+                  : view === "doctorNote"
+                  ? "Zeugnisse"
+                  : "Weitere"}{" "}
+                <span className="docsMoreChevron">{moreOpen ? "▴" : "▾"}</span>
               </button>
 
-              {moreOpen ? (
+              {moreOpen && (
                 <div className="docsMoreMenu" role="menu">
                   <button
                     type="button"
-                    className={view === "provider" ? "active" : ""}
-                    onClick={() => {
-                      setView("provider");
-                      setMoreOpen(false);
-                    }}
+                    className={view === "doctype" ? "active" : ""}
+                    onClick={() => { setView("doctype"); setMoreOpen(false); }}
                   >
-                    Provider
+                    Dokumenttyp
                   </button>
-
-                  <button
-                    type="button"
-                    className={view === "medication" ? "active" : ""}
-                    onClick={() => {
-                      setView("medication");
-                      setMoreOpen(false);
-                    }}
-                  >
-                    Medikamente
-                  </button>
-
                   <button
                     type="button"
                     className={view === "doctorNote" ? "active" : ""}
-                    onClick={() => {
-                      setView("doctorNote");
-                      setMoreOpen(false);
-                    }}
+                    onClick={() => { setView("doctorNote"); setMoreOpen(false); }}
                   >
                     Zeugnisse
                   </button>
                 </div>
-              ) : null}
+              )}
             </div>
           </div>
 
@@ -267,40 +274,7 @@ export default function Documents() {
       ) : view === "doctorNote" ? (
         <DocumentsDoctorNoteView docs={docs} onOpenFile={openFileForDoc} />
       ) : (
-        <div className="docsTimeline">
-          {timeline.map((d) => (
-            <div key={d.id} className="timeItem">
-              <div className="timeLeft">
-                <div className="timeDateLeft">{formatDate(d.serviceDate)}</div>
-                <div className="timeDot" />
-                <div className="timeLine" />
-              </div>
-
-              <div
-                className="timeCard timeCardClickable"
-                role="button"
-                tabIndex={0}
-                onClick={() => openEditModal(d)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    openEditModal(d);
-                  }
-                }}
-              >
-                <div className="timeCardTop">
-                  <div className="timeTitle">{d.title}</div>
-                  <div className="timeDate">{formatDate(d.serviceDate)}</div>
-                </div>
-
-                <div className="timeMeta">
-                  <span>{d.provider}</span>
-                  <span className="dot">•</span>
-                  <span>{d.docType}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <DocumentsTimelineView docs={docs} onOpenDoc={openEditModal} />
       )}
 
       <DocumentModal
@@ -311,6 +285,7 @@ export default function Documents() {
         onSave={handleModalSave}
         mode={modalMode}
       />
+      </div>
     </div>
   );
 }

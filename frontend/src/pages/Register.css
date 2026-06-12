@@ -1,3 +1,13 @@
+.registerBrand {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: #7c3aed;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
 .registerPage {
   min-height: calc(100vh - 60px);
   display: flex;

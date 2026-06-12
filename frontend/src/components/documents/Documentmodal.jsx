@@ -1,9 +1,46 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { apiPost, apiPostForm, API_URL } from "../../api/client";
+
+const PROVIDER_LIST = [
+  "Universitätsspital Zürich","Stadtspital Zürich Triemli","Stadtspital Zürich Waid",
+  "Universitätsklinik Balgrist","Kinderspital Zürich","Psychiatrische Universitätsklinik Zürich",
+  "Klinik Hirslanden","Klinik Im Park","Privatklinik Bethanien","Spital Zollikerberg",
+  "Spital Limmattal","Spital Uster","Spital Bülach","Spital Männedorf",
+  "See-Spital Horgen","See-Spital Kilchberg","GZO Spital Wetzikon",
+  "Kantonsspital Winterthur","Spital Affoltern","Rehaklinik Kilchberg",
+  "Permanence Medical Center AG am Hauptbahnhof Zürich","Arzthaus Zürich City",
+  "Arzthaus Zürich Stadelhofen","Medipark Ärztezentrum Oerlikon","Medical Center Oerlikon",
+  "Medbase Zürich Löwenstrasse - Sports Medical Center","Swiss Medical Center (SMC) Ltd.",
+  "Swiss Central Clinic AG","Gesundheitszentrum Hottingen","StockerDocs","MüllerPraxis",
+  "Doctor's office Kalkbreite AG","AMC Airport Medical Center AG","med-prime doctors ag",
+  "Hausarzt- und Spezialarztpraxis Dr. med. A. Knoflach AG",
+  "Hausarzt Zürich – Dr. Harris ROMANOS","Dr. Haluk Aslan",
+  "Ärztezentrum Oerlikon","Ärztezentrum Altstetten","Ärztezentrum Wiedikon",
+  "Ärztezentrum Seefeld","Ärztezentrum Enge","Ärztezentrum Höngg",
+  "Ärztezentrum Schwamendingen","Ärztezentrum Witikon","Ärztezentrum Wollishofen",
+  "Ärztezentrum Affoltern","Ärztezentrum Leimbach","Ärztezentrum Sihlcity",
+  "Ärztezentrum Zürich Nord","Praxis am Bellevue","Praxis am Central",
+  "Praxis am Paradeplatz","Praxis am Bahnhofplatz","Praxis am Limmatplatz",
+  "Praxis am Kreuzplatz","Praxis am Milchbuck","Praxis am Rigiplatz",
+  "Praxis am Stauffacher","Praxis am Albisriederplatz",
+  "Hausarztpraxis Oerlikon","Hausarztpraxis Seefeld","Hausarztpraxis Enge",
+  "Hausarztpraxis Altstetten","Hausarztpraxis Wiedikon","Hausarztpraxis Höngg",
+  "Hausarztpraxis Schwamendingen","Hausarztpraxis Wipkingen","Hausarztpraxis Fluntern",
+  "Hausarztpraxis Hottingen","Kinderarztpraxis Zürich City","Kinderarztpraxis Oerlikon",
+  "Kinderarztpraxis Seefeld","Kinderarztpraxis Enge","Kinderarztpraxis Altstetten",
+  "Kinderarztpraxis Wiedikon","Frauenpraxis Zürich","Frauenpraxis Bellevue",
+  "Frauenpraxis Oerlikon","Frauenpraxis Enge","Dermatologie Zürich City",
+  "Dermatologie Bellevue","Dermatologie Seefeld","Augenzentrum Zürich",
+  "Augenzentrum Bellevue","Augenarztpraxis Oerlikon","HNO Zentrum Zürich",
+  "HNO Praxis Seefeld","Orthopädie Zentrum Zürich","Orthopädie Oerlikon",
+  "Urologie Zürich City","Kardiologie Zürich","Neurologie Zürich",
+  "Gastroenterologie Zürich","Endokrinologie Zürich","Rheumatologie Zürich",
+  "Pneumologie Zürich","Onkologie Zürich","Radiologie Zürich","Schmerzklinik Zürich",
+];
 
 const DOC_TYPES = [
   "Blutbild",
-  "Befund",
+  "Bericht",
   "Rezept",
   "Bildgebung",
   "Bericht",
@@ -55,8 +92,14 @@ export default function DocumentModal({
   const [docType, setDocType] = useState(DOC_TYPES[0]);
   const [medication, setMedication] = useState("");
   const [file, setFile] = useState(null);
-  const [providerChoice, setProviderChoice] = useState("");
   const [providerCustom, setProviderCustom] = useState("");
+  const [providerSuggestOpen, setProviderSuggestOpen] = useState(false);
+
+  const providerSuggestions = useMemo(() => {
+    const q = providerCustom.trim().toLowerCase();
+    if (!q) return [];
+    return PROVIDER_LIST.filter((p) => p.toLowerCase().includes(q)).slice(0, 8);
+  }, [providerCustom]);
   
   // Für das Medikamenten-Dropdown
   const [searchTerm, setSearchTerm] = useState("");
@@ -79,12 +122,6 @@ export default function DocumentModal({
       setMedication("");
       setFile(null);
       setProviderCustom("");
-      
-      if (providers.length > 0) {
-        setProviderChoice(providers[0]);
-      } else {
-        setProviderChoice("__custom__");
-      }
     } else if (mode === "edit" && doc) {
       // Dokument bearbeiten
       setTitle(doc.title || "");
@@ -92,13 +129,7 @@ export default function DocumentModal({
       setDocType(doc.docType || DOC_TYPES[0]);
       setMedication(doc.medication || "");
 
-      if (providers.includes(doc.provider)) {
-        setProviderChoice(doc.provider);
-        setProviderCustom("");
-      } else {
-        setProviderChoice("__custom__");
-        setProviderCustom(doc.provider || "");
-      }
+      setProviderCustom(doc.provider || "");
     } else if (mode === "medication" && doc) {
       // Nur Medikament bearbeiten
       setMedication(doc.medication || "");
@@ -125,9 +156,7 @@ export default function DocumentModal({
     e?.preventDefault();
 
     const providerValue =
-      providerChoice === "__custom__"
-        ? providerCustom.trim()
-        : (providerChoice || "").trim();
+      providerCustom.trim();
 
     // Validierung für "new" und "edit" Modi
     if (mode === "new" || mode === "edit") {
@@ -356,30 +385,37 @@ export default function DocumentModal({
 
             <div className="docsLabel">
               <div>Arzt / Einrichtung</div>
-
-              <select
-                className="docsSelect"
-                value={providerChoice}
-                onChange={(e) => setProviderChoice(e.target.value)}
-                required
-              >
-                {providers.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-                <option value="__custom__">Neu eingeben</option>
-              </select>
-
-              {providerChoice === "__custom__" && (
+              <div className="providerAutoWrap">
                 <input
                   className="docsInput"
                   value={providerCustom}
-                  onChange={(e) => setProviderCustom(e.target.value)}
-                  placeholder="z.B. USZ Zuerich"
+                  onChange={(e) => {
+                    setProviderCustom(e.target.value);
+                    setProviderSuggestOpen(true);
+                  }}
+                  onFocus={() => setProviderSuggestOpen(true)}
+                  onBlur={() => setTimeout(() => setProviderSuggestOpen(false), 150)}
+                  placeholder="Einrichtung suchen oder frei eingeben…"
+                  autoComplete="off"
                   required
                 />
-              )}
+                {providerSuggestOpen && providerSuggestions.length > 0 && (
+                  <div className="providerSuggestList">
+                    {providerSuggestions.map((p) => (
+                      <div
+                        key={p}
+                        className="providerSuggestItem"
+                        onMouseDown={() => {
+                          setProviderCustom(p);
+                          setProviderSuggestOpen(false);
+                        }}
+                      >
+                        {p}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             <label className="docsLabel">
@@ -405,56 +441,29 @@ export default function DocumentModal({
             {docType === "Rezept" && (
               <div className="docsLabel medication-dropdown-wrapper" style={{ position: 'relative' }}>
                 <div>Medikament</div>
-                
-                {/* Das Dropdown-Feld */}
-                <div 
-                  className="docsSelect" 
+
+                <div
+                  className="docsSelect medDropdownTrigger"
                   onClick={() => setIsMedDropdownOpen(!isMedDropdownOpen)}
-                  style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
                 >
                   {medication || "Medikament wählen..."}
                 </div>
 
-                {/* Das Dropdown-Menü mit Suchfeld */}
                 {isMedDropdownOpen && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    right: 0,
-                    background: 'white',
-                    border: '1px solid #e9edf5',
-                    borderRadius: '12px',
-                    zIndex: 10,
-                    marginTop: '4px',
-                    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
-                  }}>
+                  <div className="medDropdownMenu">
                     <input
+                      className="medDropdownSearch"
                       type="text"
                       placeholder="Suchen..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '10px',
-                        border: 'none',
-                        borderBottom: '1px solid #e9edf5',
-                        outline: 'none',
-                        borderRadius: '12px 12px 0 0'
-                      }}
                       autoFocus
                     />
-                    <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                    <div className="medDropdownList">
                       {filteredMeds.map((med) => (
                         <div
                           key={med}
-                          style={{ 
-                            padding: '10px 14px', 
-                            cursor: 'pointer',
-                            transition: 'background 0.2s'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
-                          onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                          className="medDropdownItem"
                           onClick={() => {
                             setMedication(med);
                             setIsMedDropdownOpen(false);
@@ -465,9 +474,7 @@ export default function DocumentModal({
                         </div>
                       ))}
                       {filteredMeds.length === 0 && (
-                        <div style={{ padding: '10px', color: '#64748b' }}>
-                          Kein Treffer
-                        </div>
+                        <div className="medDropdownEmpty">Kein Treffer</div>
                       )}
                     </div>
                   </div>
@@ -476,20 +483,31 @@ export default function DocumentModal({
             )}
 
             <div className="docsLabel">
-              <div>Datei</div>
+              <div>Anhang</div>
               {mode === "new" ? (
-                <input
-                  className="docsInput"
-                  type="file"
-                  accept=".pdf,image/*"
-                  onChange={(e) => setFile(e.target.files?.[0] || null)}
-                />
+                <>
+                  <input
+                    className="docsInput"
+                    type="file"
+                    accept=".pdf,image/*"
+                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  />
+                  {file && (
+                    <div className="docsFileSelected">{file.name}</div>
+                  )}
+                </>
               ) : doc?.fileId ? (
-                <button className="docsOpen" type="button" onClick={openFile}>
-                  Datei öffnen
-                </button>
+                <div className="docsFileCard">
+                  <div className="docsFileCardInfo">
+                    <div className="docsFileCardName">{doc.title}</div>
+                    <div className="docsFileCardSub">{doc.docType} · {doc.provider}</div>
+                  </div>
+                  <button className="docsOpen" type="button" onClick={openFile}>
+                    Öffnen
+                  </button>
+                </div>
               ) : (
-                <div className="docsInput">Keine Datei vorhanden</div>
+                <div className="docsNoFile">Keine Datei vorhanden</div>
               )}
             </div>
 

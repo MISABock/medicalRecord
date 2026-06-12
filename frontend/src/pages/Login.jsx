@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { apiPost } from "../api/client";
 import "./Login.css";
 import AuthNav from "../components/AuthNav";
-import { API_URL } from "../api/client";
 
 
 
@@ -23,7 +22,7 @@ export default function Login() {
       const res = await apiPost("/auth/login", { email, password });
       localStorage.setItem("token", res.access_token);
       setMsg("Eingeloggt.");
-      navigate("/dashboard");
+      navigate("/documents");
     } catch (err) {
       setMsg(err.message || "Login fehlgeschlagen.");
     } finally {
@@ -35,6 +34,7 @@ export default function Login() {
     
     <div className="loginPage">
       <div className="loginCard">
+        <div className="loginBrand">MedicalRecord</div>
        <AuthNav />
         <div className="loginHeader">
           <h1 className="loginTitle">Login</h1>
@@ -73,7 +73,6 @@ export default function Login() {
             {loading ? "Anmelden..." : "Anmelden"}
           </button>
 
-          <div className="loginSubtitle">API: {API_URL}</div>
           {msg ? (
             <div className={`loginMessage ${msg.toLowerCase().includes("eingeloggt") ? "ok" : "error"}`}>
               {msg}

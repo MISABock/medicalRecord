@@ -9,10 +9,7 @@ function formatDate(iso) {
   }
 }
 
-export default function DocumentsMedicationView({
-  docs,
-  onOpenFile,
-}) {
+export default function DocumentsMedicationView({ docs, onOpenFile, onEditMedication }) {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState("");
 
@@ -73,15 +70,19 @@ export default function DocumentsMedicationView({
         <div className="medList">
           {filteredGroups.map(([name, items]) => {
             const active = name === selectedName;
+            const latestDate = items[0]?.serviceDate;
             return (
               <button
                 key={name}
                 type="button"
-                className={active ? "medItem medItemActive" : "medItem"}
+                className={`medItem${active ? ' medItemActive' : ''}`}
                 onClick={() => setSelected(name)}
               >
-                <div className="medItemName">{name}</div>
-                <div className="medItemMeta">{items.length} Rezepte</div>
+                <div className="medItemRow">
+                  <div className="medItemName">{name}</div>
+                  <span className="medItemBadge">{items.length}</span>
+                </div>
+                <div className="medItemMeta">Zuletzt: {formatDate(latestDate)}</div>
               </button>
             );
           })}
@@ -90,22 +91,36 @@ export default function DocumentsMedicationView({
 
       <div className="medRight">
         <div className="medHeader">
-          <div className="medHeaderTitle">{selectedName}</div>
-          <div className="medHeaderMeta">{selectedDocs.length} Rezepte</div>
+          <div>
+            <div className="medHeaderTitle">{selectedName}</div>
+            <div className="medHeaderMeta">
+              {selectedDocs.length} {selectedDocs.length === 1 ? 'Rezept' : 'Rezepte'}
+            </div>
+          </div>
         </div>
 
         <div className="medDocs">
           {selectedDocs.map((d) => (
             <div key={d.id} className="medDocRow">
               <div className="medDocMain">
+                <div className="medDocTitle">{d.title}</div>
                 <div className="medDocMetaLine">
-                    <span>{formatDate(d.serviceDate)}</span>
-                    <span className="medSep"> - </span>
-                    <span>{d.provider || "Unbekannt"}</span>
+                  <span>{formatDate(d.serviceDate)}</span>
+                  <span className="medSep">·</span>
+                  <span>{d.provider || "Unbekannt"}</span>
                 </div>
               </div>
 
               <div className="medDocActions">
+                {onEditMedication && (
+                  <button
+                    type="button"
+                    className="medAction medActionSecondary"
+                    onClick={() => onEditMedication(d)}
+                  >
+                    Bearbeiten
+                  </button>
+                )}
                 <button
                   type="button"
                   className="medAction"
@@ -113,7 +128,7 @@ export default function DocumentsMedicationView({
                   disabled={!d.fileId}
                   title={d.fileId ? "" : "Keine Datei vorhanden"}
                 >
-                  Rezept öffnen
+                  Öffnen
                 </button>
               </div>
             </div>

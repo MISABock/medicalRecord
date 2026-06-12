@@ -31,6 +31,7 @@ export default function Register() {
   return (
     <div className="registerPage">
       <div className="registerCard">
+        <div className="registerBrand">MedicalRecord</div>
        <AuthNav />
         <div className="registerHeader">
           <h1 className="registerTitle">Registrieren</h1>

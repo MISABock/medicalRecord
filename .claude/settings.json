@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/micha/AppData/Local/Temp/**)",
+      "PowerShell(Invoke-WebRequest -Uri \"http://localhost:5173/index.html\" -UseBasicParsing 2>&1)",
+      "Bash(npx vite *)"
+    ]
+  }
+}

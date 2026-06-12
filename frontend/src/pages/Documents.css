@@ -3,6 +3,11 @@
    ============================================================================ */
 
 .docsPage {
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+.docsContent {
   max-width: 1100px;
   margin: 0 auto;
   padding: 24px 18px 48px 18px;
@@ -60,10 +65,15 @@
   font-weight: 800;
   border: 0;
   cursor: pointer;
+  transition: filter 0.12s ease, transform 0.1s ease;
 }
 
 .docsPrimary:hover {
-  filter: brightness(0.97);
+  filter: brightness(0.9);
+}
+
+.docsPrimary:active {
+  transform: scale(0.98);
 }
 
 /* Secondary Button */
@@ -76,27 +86,50 @@
   font-weight: 800;
   color: #0f172a;
   cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
 }
 
 .docsSecondary:hover {
-  background: #f8fafc;
+  background: #f1f5f9;
+  border-color: #d9e1ee;
+}
+
+/* Danger Button */
+.docsDanger {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #fecaca;
+  background: #fff5f5;
+  color: #dc2626;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.docsDanger:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
 }
 
 /* Open Button */
 .docsOpen {
   height: 34px;
-  padding: 0 10px;
+  padding: 0 14px;
   border-radius: 10px;
-  border: 1px solid #e9edf5;
-  background: #ffffff;
+  border: 1px solid #c4b5fd;
+  background: #ede9fe;
   font-weight: 800;
-  color: #0f172a;
+  color: #6d28d9;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.12s ease, border-color 0.12s ease;
 }
 
 .docsOpen:hover {
-  background: #ffffff;
-  border-color: #d9e1ee;
+  background: #ddd6fe;
+  border-color: #a78bfa;
 }
 
 
@@ -121,6 +154,11 @@
   border: 0;
   background: transparent;
   cursor: pointer;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.docsSegment > button:first-child {
+  border-radius: 11px 0 0 11px;
 }
 
 .docsSegment > button + button {
@@ -129,15 +167,26 @@
 
 .docsSegment .docsMore > button {
   border-left: 1px solid #e9edf5;
+  border-radius: 0 11px 11px 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.docsMoreChevron {
+  font-size: 9px;
+  opacity: 0.6;
+  line-height: 1;
 }
 
 .docsSegment button:hover {
-  background: #f8fafc;
+  background: #f1f5f9;
+  color: #0f172a;
 }
 
 .docsSegment button.active {
-  background: #f4f7ff;
-  color: #0f172a;
+  background: #ede9fe;
+  color: #5b21b6;
 }
 
 
@@ -199,18 +248,23 @@
   border: 1px solid #e9edf5;
   border-radius: 16px;
   background: #ffffff;
-  box-shadow: 0 10px 26px rgba(16, 24, 40, 0.06);
+  box-shadow: 0 4px 16px rgba(16, 24, 40, 0.06);
   overflow: hidden;
+  transition: box-shadow 0.12s ease;
+}
+
+.docsGroup:hover {
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.09);
 }
 
 .docsGroupHeader {
-  padding: 14px 14px 10px 14px;
-  border-bottom: 1px solid #000000;
+  padding: 12px 14px;
+  border-bottom: 1px solid #eef2f8;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 10px;
-  background: radial-gradient(circle at 10% 10%, #d2dcf9, #ffffff);
+  background: linear-gradient(to right, #f8faff, #ffffff);
 }
 
 .docsGroupName {
@@ -219,9 +273,17 @@
   color: #0f172a;
 }
 
-.docsGroupCount {
-  font-size: 12px;
-  color: #64748b;
+.docsGroupBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
 
@@ -265,12 +327,39 @@
   gap: 8px;
 }
 
+.docsRowRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.docsRowDate {
+  font-size: 11px;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.docsRowChevron {
+  font-size: 18px;
+  color: #cbd5e1;
+  line-height: 1;
+  font-weight: 300;
+  transition: color 0.1s ease, transform 0.1s ease;
+}
+
 .docsRowClickable {
   cursor: pointer;
+  transition: background 0.1s ease;
 }
 
 .docsRowClickable:hover {
   background: #f8fafc;
+}
+
+.docsRowClickable:hover .docsRowChevron {
+  color: #7c3aed;
+  transform: translateX(2px);
 }
 
 .docsRowClickable:focus-visible {
@@ -282,6 +371,16 @@
   opacity: 0.7;
 }
 
+.docsRowBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+
 
 /* ============================================================================
    TIMELINE VIEW
@@ -291,6 +390,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin-left: 88px;
 }
 
 .timeItem {
@@ -423,8 +523,13 @@
 }
 
 .docsModalTitle {
+  font-size: 15px;
   font-weight: 900;
   color: #0f172a;
+}
+
+.docsModalActionsBetween {
+  justify-content: space-between;
 }
 
 .docsModalClose {
@@ -519,6 +624,91 @@
   color: #64748b;
 }
 
+.docsFileCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.docsFileCardInfo {
+  min-width: 0;
+  flex: 1;
+}
+
+.docsFileCardName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.docsFileCardSub {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 3px;
+}
+
+.docsFileSelected {
+  font-size: 12px;
+  color: #64748b;
+  padding: 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.docsNoFile {
+  font-size: 13px;
+  color: #94a3b8;
+  padding: 8px 0;
+}
+
+.providerAutoWrap {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.providerAutoWrap .docsInput {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.providerSuggestList {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e9edf5;
+  border-radius: 12px;
+  box-shadow: 0 10px 26px rgba(16, 24, 40, 0.12);
+  z-index: 100;
+  overflow: hidden;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.providerSuggestItem {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #0f172a;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.providerSuggestItem:hover {
+  background: #f4f7ff;
+  color: #5b21b6;
+}
+
 
 /* ============================================================================
    MEDICATION VIEW (Two-Column Layout)
@@ -569,29 +759,60 @@
 
 .medItem {
   text-align: left;
-  padding: 12px;
+  padding: 12px 14px;
   border: 0;
   background: transparent;
   border-bottom: 1px solid #f0f1f6;
   cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background 0.1s ease;
 }
 
 .medItem:hover {
-  background: #f6f7fb;
+  background: #fafafa;
 }
 
 .medItemActive {
-  background: #eef2ff;
+  background: #fffbeb;
+  border-left-color: #b45309;
+}
+
+.medItemRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .medItemName {
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.medItemBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #fef3c7;
+  color: #b45309;
+  flex-shrink: 0;
+}
+
+.medItemActive .medItemBadge {
+  background: #fde68a;
 }
 
 .medItemMeta {
-  font-size: 12px;
-  opacity: 0.7;
-  margin-top: 4px;
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 3px;
 }
 
 /* Right Panel - Medication Details */
@@ -606,18 +827,21 @@
   padding: 14px 16px;
   border-bottom: 1px solid #e7e9f1;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
+  background: linear-gradient(to right, #fffbeb, #ffffff);
 }
 
 .medHeaderTitle {
-  font-weight: 700;
-  font-size: 16px;
+  font-weight: 800;
+  font-size: 15px;
+  color: #0f172a;
 }
 
 .medHeaderMeta {
   font-size: 12px;
-  opacity: 0.7;
+  color: #94a3b8;
+  margin-top: 2px;
 }
 
 .medDocs {
@@ -632,175 +856,332 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px;
+  padding: 12px 14px;
   border-radius: 12px;
   border: 1px solid #f0f1f6;
   background: #ffffff;
+  transition: background 0.1s ease, border-color 0.1s ease;
 }
 
 .medDocRow:hover {
-  background: #f6f7fb;
+  background: #fafafa;
+  border-color: #e9edf5;
 }
 
 .medDocMain {
   min-width: 0;
+  flex: 1;
+}
+
+.medDocTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .medDocMetaLine {
-  font-size: 13px;
-  opacity: 0.85;
+  font-size: 12px;
+  color: #94a3b8;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
 }
 
 .medSep {
-  opacity: 0.6;
-  margin: 0 8px;
+  margin: 0 6px;
+  opacity: 0.5;
 }
 
 .medDocActions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
 .medAction {
-  padding: 8px 12px;
+  padding: 7px 12px;
   border-radius: 10px;
   border: 1px solid #e7e9f1;
   background: #ffffff;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 600;
   white-space: nowrap;
+  transition: background 0.1s ease, border-color 0.1s ease;
 }
 
 .medAction:hover {
-  background: #eef2ff;
+  background: #fef3c7;
+  border-color: #fde68a;
+  color: #b45309;
+}
+
+.medActionSecondary {
+  color: #64748b;
+}
+
+.medActionSecondary:hover {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #0f172a;
 }
 
 .medAction:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 
 /* ============================================================================
-   DOCTOR NOTE VIEW (Single Column Layout)
+   DOCTOR NOTE VIEW
    ============================================================================ */
 
-.docNoteView {
-  margin-top: 12px;
-}
-
-/* Top Section - Search */
-.docNoteTop {
-  background: #ffffff;
-  border: 1px solid #e7e9f1;
-  border-radius: 16px;
-  margin-bottom: 16px;
-}
-
-.docNoteSearchWrap {
-  padding: 12px;
+.docNoteHeadRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .docNoteSearch {
-  width: 100%;
-  padding: 10px 12px;
+  height: 34px;
+  padding: 0 12px;
   border: 1px solid #e7e9f1;
-  border-radius: 12px;
+  border-radius: 10px;
   outline: none;
+  font-size: 13px;
+  width: 200px;
+  background: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .docNoteSearch:focus {
-  border-color: #c9d3ff;
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
 }
 
-.docNoteCount {
-  margin-top: 8px;
-  font-size: 12px;
-  opacity: 0.7;
+.docNotePreview {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 300px;
+  display: inline-block;
+  vertical-align: bottom;
 }
 
-/* List Section - Doctor Notes */
-.docNoteList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+
+/* ============================================================================
+   VERTICAL TIMELINE VIEW
+   ============================================================================ */
+
+.vtlWrap {
+  margin-top: 12px;
 }
 
-.docNoteRow {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px;
-  border-radius: 16px;
-  border: 1px solid #e7e9f1;
+/* Axis chart */
+.vtlChart {
   background: #ffffff;
+  border: 1px solid #e9edf5;
+  border-radius: 16px;
+  padding: 14px 20px 10px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(16, 24, 40, 0.06);
+  overflow: hidden;
 }
 
-.docNoteRow:hover {
-  background: #f6f7fb;
-  border-color: #d9e1ee;
-}
-
-.docNoteMain {
-  min-width: 0;
-  flex: 1;
-}
-
-.docNoteMetaLine {
-  font-size: 13px;
-  opacity: 0.85;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+.vtlChartLabel {
+  font-size: 11px;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
   margin-bottom: 8px;
 }
 
-.docSep {
-  opacity: 0.6;
-  margin: 0 8px;
-}
-
-.docNoteTitle {
-  font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 6px;
-}
-
-.docNoteText {
-  font-size: 13px;
-  color: #475569;
-  line-height: 1.5;
-}
-
-.docNoteActions {
+/* Timeline body */
+.vtlBody {
   display: flex;
-  gap: 10px;
-  flex-shrink: 0;
+  flex-direction: column;
 }
 
-.docNoteAction {
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 1px solid #e7e9f1;
-  background: #ffffff;
-  cursor: pointer;
-  font-size: 13px;
+.vtlGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Year separator */
+.vtlYearMarker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 10px 0;
+}
+
+.vtlYearLine {
+  flex: 1;
+  height: 1px;
+  background: #e9edf5;
+}
+
+.vtlYearLabel {
+  font-size: 12px;
+  font-weight: 800;
+  color: #94a3b8;
+  white-space: nowrap;
+  padding: 0 4px;
+  letter-spacing: 0.05em;
+}
+
+/* Single row: date | connector | card */
+.vtlItem {
+  display: grid;
+  grid-template-columns: 80px 28px 1fr;
+  margin-bottom: 10px;
+}
+
+.vtlLeft {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-top: 14px;
+  padding-right: 4px;
+}
+
+.vtlDate {
+  font-size: 11px;
+  font-weight: 700;
+  color: #7c3aed;
   white-space: nowrap;
 }
 
-.docNoteAction:hover {
-  background: #eef2ff;
+.vtlConnector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 15px;
 }
 
-.docNoteAction:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.vtlDot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.vtlLine {
+  width: 2px;
+  flex: 1;
+  min-height: 16px;
+  background: #e9edf5;
+  margin-top: 4px;
+}
+
+/* Card */
+.vtlCard {
+  background: #ffffff;
+  border: 1px solid #e9edf5;
+  border-radius: 12px;
+  padding: 10px 13px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.04);
+  transition: box-shadow 0.1s ease, border-color 0.1s ease, transform 0.08s ease;
+}
+
+.vtlCard:hover {
+  border-color: #d9e1ee;
+  box-shadow: 0 6px 20px rgba(16, 24, 40, 0.08);
+  transform: translateX(2px);
+}
+
+.vtlCard:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.35);
+}
+
+.vtlBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.vtlTitle {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.vtlProvider {
+  font-size: 11px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* ============================================================================
+   MEDICATION DROPDOWN
+   ============================================================================ */
+
+.medDropdownTrigger {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.medDropdownMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e9edf5;
+  border-radius: 12px;
+  z-index: 20;
+  box-shadow: 0 10px 26px rgba(16, 24, 40, 0.12);
+  overflow: hidden;
+}
+
+.medDropdownSearch {
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-bottom: 1px solid #e9edf5;
+  outline: none;
+  font-size: 14px;
+  background: #ffffff;
+}
+
+.medDropdownList {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.medDropdownItem {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.1s ease;
+}
+
+.medDropdownItem:hover {
+  background: #f1f5f9;
+}
+
+.medDropdownEmpty {
+  padding: 10px 14px;
+  color: #64748b;
+  font-size: 14px;
 }
 
 
@@ -826,15 +1207,11 @@
     grid-template-columns: 1fr;
   }
 
-  .docNoteRow {
-    flex-direction: column;
+  .docNoteSearch {
+    width: 140px;
   }
 
-  .docNoteActions {
-    width: 100%;
-  }
-
-  .docNoteAction {
-    flex: 1;
+  .docsTimeline {
+    margin-left: 70px;
   }
 }
