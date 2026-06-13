@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { apiPost, apiPostForm, API_URL } from "../../api/client";
 
 const PROVIDER_LIST = [
@@ -1080,27 +1080,43 @@ export default function DocumentModal({
 
   const openFile = async () => {
     if (!doc?.id) return;
+    const token = localStorage.getItem("token");
+    const url = `${API_URL}/documents/${doc.id}/file?token=${encodeURIComponent(token || "")}`;
+    window.history.pushState({ fileViewer: true }, "");
+    setFileViewerUrl(url);
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${API_URL}/documents/${doc.id}/file`, {
-        headers: { Authorization: token ? `Bearer ${token}` : "" },
-      });
-      if (!res.ok) throw new Error(await res.text());
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      setFileViewerUrl(url);
-      setFileViewerType(blob.type);
-    } catch (err) {
-      console.error(err);
-      alert("Fehler beim Öffnen der Datei.");
+      const res = await fetch(url, { method: "HEAD" });
+      setFileViewerType(res.headers.get("content-type") || "");
+    } catch {
+      setFileViewerType("");
     }
   };
 
   const closeViewer = () => {
-    if (fileViewerUrl) window.URL.revokeObjectURL(fileViewerUrl);
-    setFileViewerUrl(null);
-    setFileViewerType(null);
+    window.history.back();
   };
+
+  const fileViewerUrlRef = useRef(null);
+  useEffect(() => { fileViewerUrlRef.current = fileViewerUrl; }, [fileViewerUrl]);
+
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+
+  // Push state when modal opens; combined handler: back closes file viewer first, then modal
+  useEffect(() => {
+    if (!isOpen) return;
+    window.history.pushState({ modal: true }, "");
+    const handlePop = () => {
+      if (fileViewerUrlRef.current) {
+        setFileViewerUrl(null);
+        setFileViewerType(null);
+      } else {
+        onCloseRef.current();
+      }
+    };
+    window.addEventListener("popstate", handlePop);
+    return () => window.removeEventListener("popstate", handlePop);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -1434,6 +1450,7 @@ export default function DocumentModal({
       <div className="fileViewerOverlay" onClick={closeViewer}>
         <div className="fileViewerBox" onClick={(e) => e.stopPropagation()}>
           <div className="fileViewerHeader">
+            <button className="fileViewerBack" onClick={closeViewer}>← Zurück</button>
             <span className="fileViewerTitle">{doc?.title || "Dokument"}</span>
             <div className="fileViewerActions">
               <a className="fileViewerNewTab" href={fileViewerUrl} target="_blank" rel="noreferrer">
@@ -1443,7 +1460,9 @@ export default function DocumentModal({
             </div>
           </div>
           {fileViewerType?.startsWith("image/") ? (
-            <img src={fileViewerUrl} alt={doc?.title} className="fileViewerImg" />
+            <div className="fileViewerImgWrap">
+              <img src={fileViewerUrl} alt={doc?.title} className="fileViewerImg" />
+            </div>
           ) : (
             <iframe src={fileViewerUrl} title={doc?.title} className="fileViewerFrame" />
           )}

@@ -1,11 +1,14 @@
 import os
 import uuid
 from datetime import date
+from typing import Optional
+from uuid import UUID
 
 import boto3
 from botocore.client import Config
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File as FastAPIFile
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, UploadFile, File as FastAPIFile
 from fastapi.responses import StreamingResponse
+from jose import JWTError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -13,6 +16,7 @@ from app.deps.auth import get_current_user
 from app.models.document import Document
 from app.models.file import File
 from app.models.user import User
+from app.services.tokens import decode_access_token
 
 
 
@@ -126,12 +130,36 @@ def get_documents(
     ]
 
 
+def _auth_from_request(request: Request, token_query: Optional[str], db: Session) -> User:
+    token = token_query
+    if not token:
+        auth = request.headers.get("Authorization", "")
+        if auth.startswith("Bearer "):
+            token = auth[7:]
+    if not token:
+        raise HTTPException(status_code=401, detail="Nicht authentifiziert")
+    try:
+        payload = decode_access_token(token)
+        sub = payload.get("sub")
+        if not sub:
+            raise HTTPException(status_code=401, detail="Token ungueltig")
+        user_id = UUID(sub)
+    except (JWTError, ValueError):
+        raise HTTPException(status_code=401, detail="Token ungueltig")
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="User nicht gefunden")
+    return user
+
+
 @router.get("/{doc_id}/file")
 def get_document_file(
     doc_id: str,
+    request: Request,
+    token: Optional[str] = Query(None),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
+    current_user = _auth_from_request(request, token, db)
     doc = (
         db.query(Document)
         .filter(Document.id == doc_id)

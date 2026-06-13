@@ -22,7 +22,7 @@ export default function Login() {
       const res = await apiPost("/auth/login", { email, password });
       localStorage.setItem("token", res.access_token);
       setMsg("Eingeloggt.");
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     } catch (err) {
       setMsg(err.message || "Login fehlgeschlagen.");
     } finally {

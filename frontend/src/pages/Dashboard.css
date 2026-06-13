@@ -451,28 +451,75 @@
    ============================================================================ */
 
 @media (max-width: 1200px) {
-  .dashContentGrid {
-    grid-template-columns: 1fr;
-  }
+  .dashContentGrid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 1024px) {
-  .dashStatsRow {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .dashStatsRow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dashContentGrid { grid-template-columns: 1fr; }
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .dashMain {
+    padding: 16px 14px 48px 14px;
   }
+
+  .dashStatsRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .dashStatValue { font-size: 26px; }
+  .dashStatLabel { font-size: 12px; }
 
   .dashContentGrid {
     grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 600px) {
-  .dashMain {
-    padding: 16px 14px 40px 14px;
+    gap: 16px;
   }
 
-  .dashNavGrid {
-    grid-template-columns: 1fr;
+  /* Popup full-width on mobile */
+  .dashPopup {
+    width: calc(100vw - 24px);
+    max-height: 90vh;
+  }
+
+  .dashPopupDetailTitle { font-size: 16px; }
+
+  /* Recent docs: each piece on its own line */
+  .dashRecentRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+  }
+
+  .dashRecentTitle {
+    white-space: normal;
+    font-size: 13px;
+  }
+
+  /* Badge and provider each on their own line */
+  .dashRecentMeta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .dashRecentDate {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 1px;
+  }
+
+  /* File viewer: full screen, prominent Zurück button */
+  .fileViewerOverlay { padding: 0; }
+  .fileViewerBox { border-radius: 0; height: 100vh; max-width: 100%; }
+  .fileViewerBack { font-size: 16px; padding: 6px 12px; }
+  .fileViewerClose { display: none; }
+  .fileViewerNewTab { display: none; }
+  .fileViewerHeader {
+    padding-top: max(18px, calc(env(safe-area-inset-top) + 12px));
   }
 }
 
@@ -539,6 +586,24 @@
 
 .fileViewerNewTab:hover { text-decoration: underline; }
 
+.fileViewerBack {
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  color: #7c3aed;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.1s ease;
+}
+
+.fileViewerBack:hover {
+  background: #f4f0ff;
+}
+
 .fileViewerClose {
   background: none;
   border: none;
@@ -562,9 +627,20 @@
   border: none;
 }
 
-.fileViewerImg {
+.fileViewerImgWrap {
   flex: 1;
-  width: 100%;
-  object-fit: contain;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
   padding: 16px;
+}
+
+.fileViewerImg {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
 }

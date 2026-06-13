@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { API_URL } from "../../api/client";
 
 const DOC_COLORS = {
@@ -47,27 +47,33 @@ export default function DocumentsMedicationView({ docs, onOpenDoc, onSave }) {
 
   const openFileInline = async (d) => {
     if (!d?.id) return;
+    const token = localStorage.getItem("token");
+    const url = `${API_URL}/documents/${d.id}/file?token=${encodeURIComponent(token || "")}`;
+    window.history.pushState({ fileViewer: true }, "");
+    setFileViewerUrl(url);
+    setFileViewerTitle(d.title || "Dokument");
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${API_URL}/documents/${d.id}/file`, {
-        headers: { Authorization: token ? `Bearer ${token}` : "" },
-      });
-      if (!res.ok) throw new Error(await res.text());
-      const blob = await res.blob();
-      setFileViewerUrl(window.URL.createObjectURL(blob));
-      setFileViewerType(blob.type);
-      setFileViewerTitle(d.title || "Dokument");
+      const res = await fetch(url, { method: "HEAD" });
+      setFileViewerType(res.headers.get("content-type") || "");
     } catch {
-      alert("Fehler beim Öffnen der Datei.");
+      setFileViewerType("");
     }
   };
 
   const closeViewer = () => {
-    if (fileViewerUrl) window.URL.revokeObjectURL(fileViewerUrl);
-    setFileViewerUrl(null);
-    setFileViewerType(null);
-    setFileViewerTitle(null);
+    window.history.back();
   };
+
+  useEffect(() => {
+    if (!fileViewerUrl) return;
+    const handlePop = () => {
+      setFileViewerUrl(null);
+      setFileViewerType(null);
+      setFileViewerTitle(null);
+    };
+    window.addEventListener("popstate", handlePop);
+    return () => window.removeEventListener("popstate", handlePop);
+  }, [fileViewerUrl]);
 
   const handleDelete = async (d) => {
     if (!window.confirm("Dieses Rezept wirklich löschen?")) return;
@@ -184,6 +190,7 @@ export default function DocumentsMedicationView({ docs, onOpenDoc, onSave }) {
         <div className="fileViewerOverlay" onClick={closeViewer}>
           <div className="fileViewerBox" onClick={(e) => e.stopPropagation()}>
             <div className="fileViewerHeader">
+              <button className="fileViewerBack" onClick={closeViewer}>← Zurück</button>
               <span className="fileViewerTitle">{fileViewerTitle}</span>
               <div className="fileViewerActions">
                 <a className="fileViewerNewTab" href={fileViewerUrl} target="_blank" rel="noreferrer">
@@ -193,7 +200,9 @@ export default function DocumentsMedicationView({ docs, onOpenDoc, onSave }) {
               </div>
             </div>
             {fileViewerType?.startsWith("image/") ? (
-              <img src={fileViewerUrl} alt={fileViewerTitle} className="fileViewerImg" />
+              <div className="fileViewerImgWrap">
+                <img src={fileViewerUrl} alt={fileViewerTitle} className="fileViewerImg" />
+              </div>
             ) : (
               <iframe src={fileViewerUrl} title={fileViewerTitle} className="fileViewerFrame" />
             )}

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 import HomeNav from "../components/HomeNav";
@@ -37,28 +37,42 @@ export default function Dashboard() {
 
   const openFile = async (doc) => {
     if (!doc?.id) return;
+    const token = localStorage.getItem("token");
+    const url = `${API_URL}/documents/${doc.id}/file?token=${encodeURIComponent(token || "")}`;
+    window.history.pushState({ fileViewer: true }, "");
+    setFileViewerUrl(url);
+    setFileViewerTitle(doc.title || "Dokument");
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${API_URL}/documents/${doc.id}/file`, {
-        headers: { Authorization: token ? `Bearer ${token}` : "" },
-      });
-      if (!res.ok) throw new Error(await res.text());
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      setFileViewerUrl(url);
-      setFileViewerType(blob.type);
-      setFileViewerTitle(doc.title || "Dokument");
-    } catch (err) {
-      alert("Fehler beim Öffnen der Datei.");
+      const res = await fetch(url, { method: "HEAD" });
+      setFileViewerType(res.headers.get("content-type") || "");
+    } catch {
+      setFileViewerType("");
     }
   };
 
   const closeViewer = () => {
-    if (fileViewerUrl) window.URL.revokeObjectURL(fileViewerUrl);
-    setFileViewerUrl(null);
-    setFileViewerType(null);
-    setFileViewerTitle(null);
+    window.history.back();
   };
+
+  const fileViewerUrlRef = useRef(null);
+  useEffect(() => { fileViewerUrlRef.current = fileViewerUrl; }, [fileViewerUrl]);
+
+  // Combined handler: back button closes file viewer first, then popup
+  useEffect(() => {
+    if (!statPopup) return;
+    const handlePop = () => {
+      if (fileViewerUrlRef.current) {
+        setFileViewerUrl(null);
+        setFileViewerType(null);
+        setFileViewerTitle(null);
+      } else {
+        setStatPopup(null);
+        setDetailDoc(null);
+      }
+    };
+    window.addEventListener("popstate", handlePop);
+    return () => window.removeEventListener("popstate", handlePop);
+  }, [statPopup]);
 
   useEffect(() => {
     apiGet("/documents")
@@ -129,7 +143,7 @@ export default function Dashboard() {
               type="button"
               className="dashStatCard"
               style={{ borderTop: `3px solid ${s.accent}`, cursor: s.value > 0 ? "pointer" : "default" }}
-              onClick={() => { if (s.value > 0) { setDetailDoc(null); setStatPopup(s); } }}
+              onClick={() => { if (s.value > 0) { setDetailDoc(null); setStatPopup(s); window.history.pushState({ popup: true }, ""); } }}
             >
               <div className="dashStatValue" style={{ color: s.accent }}>
                 {s.value}
@@ -141,7 +155,7 @@ export default function Dashboard() {
 
         {/* Stat popup */}
         {statPopup && (
-          <div className="dashPopupOverlay" onClick={() => { setStatPopup(null); setDetailDoc(null); }}>
+          <div className="dashPopupOverlay" onClick={() => window.history.back()}>
             <div className="dashPopup" onClick={(e) => e.stopPropagation()}>
               {/* Header */}
               <div className="dashPopupHeader" style={{ borderBottom: `3px solid ${statPopup.accent}` }}>
@@ -149,7 +163,7 @@ export default function Dashboard() {
                   {statPopup.label}
                   <span className="dashPopupCount">{statPopup.value}</span>
                 </span>
-                <button className="dashPopupClose" onClick={() => { setStatPopup(null); setDetailDoc(null); }}>✕</button>
+                <button className="dashPopupClose" onClick={() => window.history.back()}>✕</button>
               </div>
 
               {/* Body */}
@@ -245,6 +259,7 @@ export default function Dashboard() {
                         onClick={() => {
                           setStatPopup({ label: d.docType || "Sonstiges", docType: d.docType, accent: c.accent, bg: c.bg, value: byType[d.docType] || 1 });
                           setDetailDoc(d);
+                          window.history.pushState({ popup: true }, "");
                         }}
                       >
                         <div className="dashRecentMain">
@@ -296,6 +311,7 @@ export default function Dashboard() {
                           setStatPopup(medPopup);
                           setDetailDoc(null);
                         }
+                        window.history.pushState({ popup: true }, "");
                       }}
                     >
                       <div className="dashRecentMain">
@@ -328,6 +344,7 @@ export default function Dashboard() {
         <div className="fileViewerOverlay" onClick={closeViewer}>
           <div className="fileViewerBox" onClick={(e) => e.stopPropagation()}>
             <div className="fileViewerHeader">
+              <button className="fileViewerBack" onClick={closeViewer}>← Zurück</button>
               <span className="fileViewerTitle">{fileViewerTitle}</span>
               <div className="fileViewerActions">
                 <a className="fileViewerNewTab" href={fileViewerUrl} target="_blank" rel="noreferrer">
@@ -337,7 +354,9 @@ export default function Dashboard() {
               </div>
             </div>
             {fileViewerType?.startsWith("image/") ? (
-              <img src={fileViewerUrl} alt={fileViewerTitle} className="fileViewerImg" />
+              <div className="fileViewerImgWrap">
+                <img src={fileViewerUrl} alt={fileViewerTitle} className="fileViewerImg" />
+              </div>
             ) : (
               <iframe src={fileViewerUrl} title={fileViewerTitle} className="fileViewerFrame" />
             )}

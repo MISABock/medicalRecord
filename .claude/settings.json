@@ -3,7 +3,8 @@
     "allow": [
       "Read(//c/Users/micha/AppData/Local/Temp/**)",
       "PowerShell(Invoke-WebRequest -Uri \"http://localhost:5173/index.html\" -UseBasicParsing 2>&1)",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "PowerShell(Get-Process -Name \"python\" -ErrorAction SilentlyContinue | Select-Object Id; Start-Process -FilePath \"cmd.exe\" -ArgumentList \"/c cd /d c:\\\\SoftwareProjects\\\\medicalRecord\\\\backend && uvicorn app.main:app --host 0.0.0.0 --port 8000\" -WindowStyle Normal; Start-Sleep -Seconds 4; \\(Invoke-WebRequest -Uri \"http://localhost:8000/health\" -UseBasicParsing\\).Content)"
     ]
   }
 }

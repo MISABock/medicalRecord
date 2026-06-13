@@ -105,7 +105,98 @@
   color: #0f172a;
 }
 
+/* ── Hamburger (hidden on desktop) ── */
+.dashHamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.dashHamburger span {
+  display: block;
+  height: 2px;
+  background: #475569;
+  border-radius: 2px;
+  transition: background 0.1s;
+}
+
+/* ── Mobile dropdown menu ── */
+.dashMobileMenu {
+  display: none;
+}
+
+/* ── Desktop tweaks ── */
 @media (max-width: 720px) {
   .dashSubtitle { display: none; }
-  .dashNavBtn { padding: 0 10px; font-size: 13px; }
+}
+
+/* ── Mobile layout ── */
+@media (max-width: 768px) {
+  .dashTopbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  /* Hide desktop nav and logout */
+  .dashNav { display: none; }
+  .dashLogoutDesktop { display: none; }
+
+  /* Show hamburger */
+  .dashHamburger { display: flex; }
+
+  /* Mobile dropdown */
+  .dashMobileMenu {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border-bottom: 1px solid #e9edf5;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.10);
+    z-index: 99;
+    padding: 8px 12px 12px 12px;
+  }
+
+  .dashMobileItem {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    border-radius: 10px;
+    padding: 13px 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: background 0.1s ease;
+  }
+
+  .dashMobileItem:hover,
+  .dashMobileItem.active { background: #f1f5f9; color: #0f172a; }
+
+  .dashMobileItem.active { color: #5b21b6; background: #ede9fe; }
+
+  .dashMobileNew {
+    color: #5b21b6;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+
+  .dashMobileLogout {
+    color: #dc2626;
+    border-top: 1px solid #f1f5f9;
+    margin-top: 4px;
+    padding-top: 13px;
+  }
 }
