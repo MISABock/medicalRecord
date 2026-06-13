@@ -2,13 +2,18 @@ import { useNavigate, useLocation } from "react-router-dom";
 import "./HomeNav.css";
 
 const NAV_ITEMS = [
-  { label: "Übersicht",    path: "/dashboard" },
-  { label: "Dokumente",    path: "/documents" },
+  { label: "Übersicht",   path: "/dashboard" },
+  { label: "Dokumente",   path: "/documents" },
+  { label: "Timeline",    path: "/documents?view=timeline" },
+  { label: "Arzt/Praxis", path: "/documents?view=provider" },
+  { label: "Rezepte",     path: "/documents?view=medication" },
+  { label: "Zeugnisse",   path: "/documents?view=doctorNote" },
 ];
 
 export default function HomeNav() {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
+  const current = pathname + search;
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -26,12 +31,15 @@ export default function HomeNav() {
         {NAV_ITEMS.map(({ label, path }) => (
           <button
             key={path}
-            className={`dashNavBtn${pathname === path ? " active" : ""}`}
+            className={`dashNavBtn${current === path || (path === "/documents" && pathname === "/documents" && !search) ? " active" : ""}`}
             onClick={() => navigate(path)}
           >
             {label}
           </button>
         ))}
+        <button className="dashNewBtn" type="button" onClick={() => navigate("/documents?new=1")}>
+          + Neuer Bericht
+        </button>
       </nav>
 
       <div className="dashTopbarRight">

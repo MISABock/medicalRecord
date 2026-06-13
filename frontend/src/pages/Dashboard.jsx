@@ -25,12 +25,6 @@ function formatDate(iso) {
   }
 }
 
-const NAV_CARDS = [
-  { label: "Dokumente",  text: "Alle Berichte, Berichte und PDFs.",               path: "/documents",                  accent: "#1d4ed8", bg: "#dbeafe" },
-  { label: "Timeline",   text: "Chronologische Sicht auf deine Untersuchungen.", path: "/documents?view=timeline",    accent: "#7c3aed", bg: "#ede9fe" },
-  { label: "Rezepte",    text: "Alle Medikamente und Verschreibungen.",           path: "/documents?view=medication",  accent: "#b45309", bg: "#fef3c7" },
-  { label: "Zeugnisse",  text: "Arztzeugnisse und Atteste auf einen Blick.",     path: "/documents?view=doctorNote",  accent: "#0f766e", bg: "#ccfbf1" },
-];
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -84,7 +78,7 @@ export default function Dashboard() {
       .catch(() => {});
   }, []);
 
-  const { total, byType, recent, medications } = useMemo(() => {
+  const { total, byType, recent, medications, providers } = useMemo(() => {
     const byType = {};
     for (const d of docs) {
       byType[d.docType] = (byType[d.docType] || 0) + 1;
@@ -92,7 +86,7 @@ export default function Dashboard() {
     const recent = [...docs]
       .filter((d) => d.docType !== "Rezept")
       .sort((a, b) => (a.serviceDate < b.serviceDate ? 1 : -1))
-      .slice(0, 6);
+      .slice(0, 5);
 
     const medMap = new Map();
     for (const d of docs) {
@@ -109,7 +103,8 @@ export default function Dashboard() {
       .map(([name, { count, lastDate, docs: medDocs }]) => ({ name, count, lastDate, docs: medDocs }))
       .sort((a, b) => a.name.localeCompare(b.name));
 
-    return { total: docs.length, byType, recent, medications };
+    const providers = Array.from(new Set(docs.map((d) => d.provider).filter(Boolean))).sort();
+    return { total: docs.length, byType, recent, medications, providers };
   }, [docs]);
 
   const STAT_CARDS = [
@@ -228,28 +223,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Three-column content */}
+        {/* Two-column content */}
         <div className="dashContentGrid">
-
-          {/* Schnellzugriff */}
-          <div>
-            <div className="dashSectionTitle">Schnellzugriff</div>
-            <div className="dashNavGrid">
-              {NAV_CARDS.map((c) => (
-                <button
-                  key={c.path}
-                  className="dashCard"
-                  onClick={() => navigate(c.path)}
-                  style={{ borderTop: `3px solid ${c.accent}` }}
-                >
-                  <div className="dashCardBadge" style={{ background: c.bg, color: c.accent }}>
-                    {c.label}
-                  </div>
-                  <div className="dashCardText">{c.text}</div>
-                </button>
-              ))}
-            </div>
-          </div>
 
           {/* Letzte Dokumente */}
           <div>

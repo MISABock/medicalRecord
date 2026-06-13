@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import "./Documents.css";
 import { apiGet, API_URL } from "../api/client";
 import HomeNav from "../components/HomeNav";
@@ -32,13 +32,25 @@ function docTypeColor(type) {
 }
 
 export default function Documents() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [view, setView] = useState(() => {
     const v = searchParams.get("view");
     return ["doctype","timeline","provider","medication","doctorNote"].includes(v) ? v : "doctype";
   });
+
+  useEffect(() => {
+    const v = searchParams.get("view");
+    setView(["doctype","timeline","provider","medication","doctorNote"].includes(v) ? v : "doctype");
+
+    if (searchParams.get("new") === "1") {
+      setModalMode("new");
+      setSelectedDoc(null);
+      // clean the URL without re-navigating
+      setSearchParams((prev) => { const n = new URLSearchParams(prev); n.delete("new"); return n; }, { replace: true });
+    }
+  }, [searchParams]);
   const [docs, setDocs] = useState([]);
-  const [moreOpen, setMoreOpen] = useState(false);
 
   // Modal states
   const [modalMode, setModalMode] = useState(null); // "new" | "edit" | "medication" | null
@@ -184,73 +196,6 @@ export default function Documents() {
           </p>
         </div>
 
-        <div className="docsActions">
-          <div className="docsSegment">
-            <button
-              className={view === "timeline" ? "active" : ""}
-              onClick={() => { setView("timeline"); setMoreOpen(false); }}
-              type="button"
-            >
-              Timeline
-            </button>
-
-            <button
-              className={view === "provider" ? "active" : ""}
-              onClick={() => { setView("provider"); setMoreOpen(false); }}
-              type="button"
-            >
-              Arzt / Praxis
-            </button>
-
-            <button
-              className={view === "medication" ? "active" : ""}
-              onClick={() => { setView("medication"); setMoreOpen(false); }}
-              type="button"
-            >
-              Medikamente
-            </button>
-
-            <div className="docsMore">
-              <button
-                className={
-                  view === "doctype" || view === "doctorNote" ? "active" : ""
-                }
-                onClick={() => setMoreOpen((v) => !v)}
-                type="button"
-              >
-                {view === "doctype"
-                  ? "Dokumenttyp"
-                  : view === "doctorNote"
-                  ? "Zeugnisse"
-                  : "Weitere"}{" "}
-                <span className="docsMoreChevron">{moreOpen ? "▴" : "▾"}</span>
-              </button>
-
-              {moreOpen && (
-                <div className="docsMoreMenu" role="menu">
-                  <button
-                    type="button"
-                    className={view === "doctype" ? "active" : ""}
-                    onClick={() => { setView("doctype"); setMoreOpen(false); }}
-                  >
-                    Dokumenttyp
-                  </button>
-                  <button
-                    type="button"
-                    className={view === "doctorNote" ? "active" : ""}
-                    onClick={() => { setView("doctorNote"); setMoreOpen(false); }}
-                  >
-                    Zeugnisse
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <button className="docsPrimary" onClick={openNewModal} type="button">
-            Neuer Bericht
-          </button>
-        </div>
       </header>
 
       {view === "provider" ? (

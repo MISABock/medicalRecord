@@ -68,7 +68,23 @@
 .dashTopbarRight {
   display: flex;
   align-items: center;
+  gap: 8px;
 }
+
+.dashNewBtn {
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 10px;
+  border: none;
+  background: #5b21b6;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.dashNewBtn:hover { background: #4c1d95; }
 
 .dashLogout {
   height: 36px;
